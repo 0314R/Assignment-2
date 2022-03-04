@@ -44,6 +44,7 @@ int DEFAULT_ARRAY_LENGTH = 10;
 
 int main(int argc, char *argv[]){
 	int processCapability = DEFAULT_ARRAY_LENGTH, *startTimes, *finishTimes, **timesMatrix;
+	char c;
 
 	timesMatrix = malloc(processCapability * sizeof(int*));
 	startTimes = malloc(processCapability * sizeof(int));
@@ -91,9 +92,11 @@ int main(int argc, char *argv[]){
 		// Now, at the end of the line after -1, check for EOF
 		getchar(); //ignore the newline
 
-		if ( getchar() == EOF ){
+		if ( (c = getchar()) == EOF ){
 			printf("EOF\n");
 			break;
+		} else {
+			ungetc(c, stdin);
 		}
 
 	} while (1);
