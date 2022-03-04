@@ -14,6 +14,7 @@
 
 	int numberOfProcesses
 	Dynamic array finishTimes[numberOfProcesses] for the final calculation. (could just use a sum variable but easier to check this way if something goes wrong).
+	Btw initialize that array with the start times of each.
 
 	int cpuBusyUntil, ioBusyUntil
 	int readyAt, currentProcessIndex
