@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
 	startTimes = malloc(processCapability * sizeof(int));
 	finishTimes = malloc(processCapability * sizeof(int));
 
-	int newNumber, i=0, j, arraySize;
+	int ignoredPriority, newNumber, i=0, j, arraySize;
 
 	do {
 		if(i == processCapability){
@@ -63,8 +63,8 @@ int main(int argc, char *argv[]){
 		arraySize = DEFAULT_ARRAY_LENGTH;
 		timesMatrix[i] = malloc(arraySize * sizeof(int));
 
-		scanf("%d %*d", &startTimes[i]); //the second int is priority and therefore ignored here.
-
+		scanf("%d %d", &startTimes[i], &ignoredPriority); //the second int is priority and therefore ignored here.
+		printf("starttime %d, ", startTimes[i]);
 		j=0;
 
 		do{
@@ -79,6 +79,7 @@ int main(int argc, char *argv[]){
 			j++;
 		} while( newNumber != -1);
 
+		putchar('\n');
 
 		printf("entire row: ");
 		for(int k=0 ; k<j ; k++)
@@ -88,8 +89,8 @@ int main(int argc, char *argv[]){
 		i++;
 
 		// Now, at the end of the line after -1, check for EOF
-		char c = getchar(); //ignore the newline
-		printf("c = '%c'\n", c);
+		getchar(); //ignore the newline
+
 		if ( getchar() == EOF ){
 			printf("EOF\n");
 			break;
