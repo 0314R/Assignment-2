@@ -56,6 +56,8 @@ int main(int argc, char *argv[]){
 			printf("resizing matrix from %d to %d rows.\n", processCapability, 2*processCapability);
 			processCapability *= 2;
 			timesMatrix = realloc( timesMatrix, processCapability * sizeof(int*));
+			startTimes = realloc(startTimes, processCapability * sizeof(int));
+			finishTimes = realloc(finishTimes, processCapability * sizeof(int));
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
@@ -108,9 +110,11 @@ int main(int argc, char *argv[]){
 	printf("now time for the entire matrix\n\n");
 
 	for(int r=0 ; r<i ; r++){
-		for( int c=0; c<j ; c++){
+		int c=0;
+		do{
 			printf("%d ", timesMatrix[r][c]);
-		}
+			c++;
+		} while (timesMatrix[r][c] != -1);
 		putchar('\n');
 	}
 	putchar('\n');
