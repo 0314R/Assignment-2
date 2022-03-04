@@ -40,30 +40,80 @@
 
 	The loop ends when there is nothing in the list anymore, i.e. NULL pointer.
 */
+int DEFAULT_ARRAY_LENGTH = 10;
 
 int main(int argc, char *argv[]){
-	int processCapability = 10, *startTimes, *finishTimes, **timesMatrix;
+	int processCapability = DEFAULT_ARRAY_LENGTH, *startTimes, *finishTimes, **timesMatrix;
 
 	timesMatrix = malloc(processCapability * sizeof(int*));
 	startTimes = malloc(processCapability * sizeof(int));
 	finishTimes = malloc(processCapability * sizeof(int));
 
-	int newNumber, i=0;
+	int newNumber, i=0, j, arraySize, *tempRowArray;
 
 	do {
+		if(i == processCapability){
+			printf("resizing matrix from %d to %d rows.\n", processCapability, 2*processCapability);
+			processCapability *= 2;
+			timesMatrix = realloc( timesMatrix, processCapability * sizeof(int*));
+		}
+
+		arraySize = DEFAULT_ARRAY_LENGTH;
+		tempRowArray   = malloc(arraySize * sizeof(int));
+		timesMatrix[i] = malloc(arraySize * sizeof(int));
+
 		scanf("%d %*d", &startTimes[i]); //the second int is priority and therefore ignored here.
 
+		j=0;
+
 		do{
+			if(j==arraySize){
+				printf(" <resize row array from %d to %d> ", arraySize, 2*arraySize);
+				arraySize *= 2;
+				tempRowArray   = realloc(tempRowArray, arraySize * sizeof(int));
+				timesMatrix[i] = realloc(tempRowArray, arraySize * sizeof(int));
+			}
 			scanf("%d", &newNumber);
+			tempRowArray[j] = newNumber;
+			timesMatrix[i][j] = newNumber;
 			printf("%d ", newNumber);
+			j++;
 		} while( newNumber != -1);
 
 		putchar('\n');
+
+		printf("entire row      : ");
+		for(int k=0 ; k<j ; k++)
+			printf("%d ", tempRowArray[k]);
+
+		putchar('\n');
+
+		printf("entire row again: ");
+		for(int k=0 ; k<j ; k++)
+			printf("%d ", timesMatrix[i][k]);
+
+		putchar('\n');
+		i++;
+
 		// Now, at the end of the line after -1, check for EOF
-		if ( feof(stdin) )
+		char c = getchar(); //ignore the newline
+		printf("c = '%c'\n", c);
+		if ( getchar() == EOF ){
+			printf("EOF\n");
 			break;
+		}
 
 	} while (1);
+
+	printf("now time for the entire matrix\n\n");
+
+	for(int r=0 ; r<i ; r++){
+		for( int c=0; c<j ; c++){
+			printf("%d ", timesMatrix[r][c]);
+		}
+		putchar('\n');
+	}
+	putchar('\n');
 
 
     return 0;
