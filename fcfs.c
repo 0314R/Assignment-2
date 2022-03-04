@@ -3,8 +3,8 @@
 #include <math.h>
 
 /*
-	Ordered list with tuples [ready_at, process_index]
-	e.g. [0,0] -> [15,1]
+	Ordered data structure (e.g. priority queue) with tuples [ready_at, process_index]
+	e.g. [[0,0], [15,1]] after initialization of 1.in
 
 	Dynamic array of arrays: timesMatrix. Row i contains the times of process i.
 	e.g.
