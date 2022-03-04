@@ -49,7 +49,7 @@ int main(int argc, char *argv[]){
 	startTimes = malloc(processCapability * sizeof(int));
 	finishTimes = malloc(processCapability * sizeof(int));
 
-	int newNumber, i=0, j, arraySize, *tempRowArray;
+	int newNumber, i=0, j, arraySize;
 
 	do {
 		if(i == processCapability){
@@ -61,7 +61,6 @@ int main(int argc, char *argv[]){
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
-		tempRowArray   = malloc(arraySize * sizeof(int));
 		timesMatrix[i] = malloc(arraySize * sizeof(int));
 
 		scanf("%d %*d", &startTimes[i]); //the second int is priority and therefore ignored here.
@@ -72,11 +71,9 @@ int main(int argc, char *argv[]){
 			if(j==arraySize){
 				printf(" <resize row array from %d to %d> ", arraySize, 2*arraySize);
 				arraySize *= 2;
-				tempRowArray   = realloc(tempRowArray, arraySize * sizeof(int));
-				timesMatrix[i] = realloc(tempRowArray, arraySize * sizeof(int));
+				timesMatrix[i] = realloc(timesMatrix[i], arraySize * sizeof(int));
 			}
 			scanf("%d", &newNumber);
-			tempRowArray[j] = newNumber;
 			timesMatrix[i][j] = newNumber;
 			printf("%d ", newNumber);
 			j++;
@@ -84,13 +81,7 @@ int main(int argc, char *argv[]){
 
 		putchar('\n');
 
-		printf("entire row      : ");
-		for(int k=0 ; k<j ; k++)
-			printf("%d ", tempRowArray[k]);
-
-		putchar('\n');
-
-		printf("entire row again: ");
+		printf("entire row: ");
 		for(int k=0 ; k<j ; k++)
 			printf("%d ", timesMatrix[i][k]);
 
