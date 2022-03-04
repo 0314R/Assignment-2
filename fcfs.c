@@ -41,9 +41,30 @@
 	The loop ends when there is nothing in the list anymore, i.e. NULL pointer.
 */
 
-
-
 int main(int argc, char *argv[]){
+	int processCapability = 10, *startTimes, *finishTimes, **timesMatrix;
+
+	timesMatrix = malloc(processCapability * sizeof(int*));
+	startTimes = malloc(processCapability * sizeof(int));
+	finishTimes = malloc(processCapability * sizeof(int));
+
+	int newNumber, i=0;
+
+	do {
+		scanf("%d %*d", &startTimes[i]); //the second int is priority and therefore ignored here.
+
+		do{
+			scanf("%d", &newNumber);
+			printf("%d ", newNumber);
+		} while( newNumber != -1);
+
+		putchar('\n');
+		// Now, at the end of the line after -1, check for EOF
+		if ( feof(stdin) )
+			break;
+
+	} while (1);
+
 
     return 0;
 }
