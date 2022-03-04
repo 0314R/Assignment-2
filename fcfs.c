@@ -79,7 +79,6 @@ int main(int argc, char *argv[]){
 			j++;
 		} while( newNumber != -1);
 
-		putchar('\n');
 
 		printf("entire row: ");
 		for(int k=0 ; k<j ; k++)
