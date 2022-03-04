@@ -6,15 +6,15 @@
 	Ordered list with tuples [ready_at, process_index]
 	e.g. [0,0] -> [15,1]
 
-	Dynamic array of arrays. Row i contains the times of process i,
-	except the first column tracks how much of the array has already been read.
+	Dynamic array of arrays: timesMatrix. Row i contains the times of process i.
 	e.g.
-	[[1, 100, 25, 100, 20, 50, 20, 100, 10, 200, -1],
-	[1, 30, 15, 30, 10, 40, 10, 50, -1]]
+	[[100, 25, 100, 20, 50, 20, 100, 10, 200, -1],
+	[30, 15, 30, 10, 40, 10, 50, -1]]
+
+	Array of row indexes to keep track of how much of each matrix row has been read.
 
 	int numberOfProcesses
 	Dynamic array finishTimes[numberOfProcesses] for the final calculation. (could just use a sum variable but easier to check this way if something goes wrong).
-	Btw initialize that array with the start times of each.
 
 	int cpuBusyUntil, ioBusyUntil
 	int readyAt, currentProcessIndex
@@ -81,17 +81,10 @@ int main(int argc, char *argv[]){
 		} while( newNumber != -1);
 
 		putchar('\n');
-
-		printf("entire row: ");
-		for(int k=0 ; k<j ; k++)
-			printf("%d ", timesMatrix[i][k]);
-
-		putchar('\n');
 		i++;
 
 		// Now, at the end of the line after -1, check for EOF
 		getchar(); //ignore the newline
-
 		if ( (c = getchar()) == EOF ){
 			printf("EOF\n");
 			break;
@@ -100,10 +93,10 @@ int main(int argc, char *argv[]){
 		}
 
 	} while (1);
+	int numberOfProcesses = i;
 
-	printf("now time for the entire matrix\n\n");
-
-	for(int r=0 ; r<i ; r++){
+	printf("matrix:\n\n");
+	for(int r=0 ; r<numberOfProcesses ; r++){
 		int c=0;
 		do{
 			printf("%d ", timesMatrix[r][c]);
@@ -111,6 +104,11 @@ int main(int argc, char *argv[]){
 		} while (timesMatrix[r][c] != -1);
 		putchar('\n');
 	}
+	putchar('\n');
+
+	printf("start times: ");
+	for(int k=0 ; k<numberOfProcesses ; k++)
+		printf("%d ", startTimes[k]);
 	putchar('\n');
 
 
