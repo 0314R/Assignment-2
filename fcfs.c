@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
+
+#include "list.h"
 
 /*
 	Ordered data structure (e.g. priority queue) with tuples [ready_at, process_index]
@@ -42,21 +45,32 @@
 */
 int DEFAULT_ARRAY_LENGTH = 10;
 
-int main(int argc, char *argv[]){
+int returnMax(int a, int b)
+{
+	if (a > b)
+	{
+		return a;
+	}
+	return b;
+}
+
+int main(int argc, char *argv[])
+{
 	int processCapability = DEFAULT_ARRAY_LENGTH, *startTimes, *finishTimes, **timesMatrix;
 	char c;
 
-	timesMatrix = malloc(processCapability * sizeof(int*));
+	timesMatrix = malloc(processCapability * sizeof(int *));
 	startTimes = malloc(processCapability * sizeof(int));
 	finishTimes = malloc(processCapability * sizeof(int));
 
-	int ignoredPriority, newNumber, i=0, j, arraySize;
+	int ignoredPriority, newNumber, i = 0, j, arraySize;
 
-	do {
-		if(i == processCapability){
-			printf("resizing matrix from %d to %d rows.\n", processCapability, 2*processCapability);
+	do
+	{
+		if (i == processCapability)
+		{
 			processCapability *= 2;
-			timesMatrix = realloc( timesMatrix, processCapability * sizeof(int*));
+			timesMatrix = realloc(timesMatrix, processCapability * sizeof(int *));
 			startTimes = realloc(startTimes, processCapability * sizeof(int));
 			finishTimes = realloc(finishTimes, processCapability * sizeof(int));
 		}
@@ -64,53 +78,91 @@ int main(int argc, char *argv[]){
 		arraySize = DEFAULT_ARRAY_LENGTH;
 		timesMatrix[i] = malloc(arraySize * sizeof(int));
 
-		scanf("%d %d", &startTimes[i], &ignoredPriority); //the second int is priority and therefore ignored here.
-		printf("starttime %d, ", startTimes[i]);
-		j=0;
+		scanf("%d %d", &startTimes[i], &ignoredPriority); // the second int is priority and therefore ignored here.
+		j = 0;
 
-		do{
-			if(j==arraySize){
-				printf(" <resize row array from %d to %d> ", arraySize, 2*arraySize);
+		do
+		{
+			if (j == arraySize)
+			{
 				arraySize *= 2;
 				timesMatrix[i] = realloc(timesMatrix[i], arraySize * sizeof(int));
 			}
 			scanf("%d", &newNumber);
 			timesMatrix[i][j] = newNumber;
-			printf("%d ", newNumber);
 			j++;
-		} while( newNumber != -1);
-
-		putchar('\n');
+		} while (newNumber != -1);
 		i++;
 
 		// Now, at the end of the line after -1, check for EOF
-		getchar(); //ignore the newline
-		if ( (c = getchar()) == EOF ){
-			printf("EOF\n");
+		getchar(); // ignore the newline
+		c = getchar();
+		if (!isdigit(c))
+		{
 			break;
-		} else {
+		}
+		else
+		{
 			ungetc(c, stdin);
 		}
 
 	} while (1);
 	int numberOfProcesses = i;
 
-	printf("matrix:\n\n");
-	for(int r=0 ; r<numberOfProcesses ; r++){
-		int c=0;
-		do{
-			printf("%d ", timesMatrix[r][c]);
-			c++;
-		} while (timesMatrix[r][c] != -1);
+	int notFinished = 1, cpuBusyUntil = 0, ioBusyUntil = 0, r = 0;
+	int *rowIdx = malloc(numberOfProcesses * sizeof(int));
+
+	for (int i = 0; i < numberOfProcesses; i++)
+	{
+		rowIdx[i] = 0;
+	}
+
+	struct Node *list = NULL;
+	struct Node *new = newNode(timesMatrix[0][0], 0);
+	sortedInsert(&list, new);
+
+	while (list != NULL)
+	{
+		// 1
+		struct Node *head = (struct Node *)malloc(sizeof(Node));
+		head = pop(&list);
+
+		// 2
+		int readyAt = head->readyAt;
+		cpuBusyUntil = returnMax(cpuBusyUntil, readyAt);
+		r = head->currentProcessIndex;
+		cpuBusyUntil += timesMatrix[r][rowIdx[r]];
+
+		// 3
+		if (timesMatrix[r][rowIdx[r] + 1] == -1)
+		{
+			finishTimes[r] = cpuBusyUntil;
+			continue;
+		}
+		ioBusyUntil = returnMax(ioBusyUntil, cpuBusyUntil);
+		ioBusyUntil += timesMatrix[r][rowIdx[r] + 1];
+
+		// 4
+		rowIdx[r] += 2;
+
+		// 5
+		struct Node *new = newNode(ioBusyUntil, r);
+		sortedInsert(&list, new);
+
+		printf("loop: r %d, readyAt %d, cpu %d, io %d\n", r, readyAt, cpuBusyUntil, ioBusyUntil);
+		free(head);
+	}
+
+	for (int i = 0; i < numberOfProcesses; i++)
+	{
+		printf("%d ", finishTimes[i]);
 		putchar('\n');
 	}
-	putchar('\n');
 
-	printf("start times: ");
-	for(int k=0 ; k<numberOfProcesses ; k++)
-		printf("%d ", startTimes[k]);
-	putchar('\n');
+	free(rowIdx);
+	free(timesMatrix);
+	free(finishTimes);
+	free(startTimes);
 
-
-    return 0;
+	return 0;
 }
