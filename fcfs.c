@@ -110,17 +110,7 @@ int main(int argc, char *argv[])
 	} while (1);
 	int numberOfProcesses = i;
 
-	// for (int i = 0; i < numberOfProcesses; i++)
-	// {
-	// 	int x = 0;
-	// 	while (timesMatrix[i][x] != -1)
-	// 	{
-	// 		printf("%d ", timesMatrix[i][x]);
-	// 		x++;
-	// 	}
-	// 	printf("\n");
-	// }
-
+	// initialize variables
 	int cpuBusyUntil = 0, ioBusyUntil = 0, r = 0;
 	int *rowIdx = (int *)malloc(numberOfProcesses * sizeof(int));
 	int *heap = (int *)malloc(2 * numberOfProcesses * sizeof(int));
@@ -134,13 +124,12 @@ int main(int argc, char *argv[])
 		rowIdx[i] = 0;
 	}
 
+	// heapify heap array
 	for (int i = heapIdx / 2 - 1; i >= 0; i -= 2)
 		heapify(heap, heapIdx, i);
 
-	int loop = 0;
-	while (loop < 20)
+	while (heapIdx != 0)
 	{
-		loop++;
 		// 1
 		int readyAt = heap[0];
 		int r = heap[1];
@@ -198,11 +187,15 @@ int main(int argc, char *argv[])
 		printf("loop: r %d, readyAt %d, cpu %d, io %d\n", r, readyAt, cpuBusyUntil, ioBusyUntil);
 	}
 
+	int sum = 0;
 	for (int i = 0; i < numberOfProcesses; i++)
 	{
+		sum += finishTimes[i] - startTimes[i];
 		printf("%d ", finishTimes[i]);
 		putchar('\n');
 	}
+
+	printf("%d\n", sum / numberOfProcesses);
 
 	// freeList(list);
 	free(heap);
