@@ -110,6 +110,17 @@ int main(int argc, char *argv[])
 	} while (1);
 	int numberOfProcesses = i;
 
+	// for (int i = 0; i < numberOfProcesses; i++)
+	// {
+	// 	int x = 0;
+	// 	while (timesMatrix[i][x] != -1)
+	// 	{
+	// 		printf("%d ", timesMatrix[i][x]);
+	// 		x++;
+	// 	}
+	// 	printf("\n");
+	// }
+
 	int cpuBusyUntil = 0, ioBusyUntil = 0, r = 0;
 	int *rowIdx = (int *)malloc(numberOfProcesses * sizeof(int));
 	int *heap = (int *)malloc(2 * numberOfProcesses * sizeof(int));
@@ -126,49 +137,65 @@ int main(int argc, char *argv[])
 	for (int i = heapIdx / 2 - 1; i >= 0; i -= 2)
 		heapify(heap, heapIdx, i);
 
-	// while (list != NULL)
 	int loop = 0;
 	while (loop < 20)
 	{
 		loop++;
 		// 1
-		// struct Node *head = pop(&list);
 		int readyAt = heap[0];
 		int r = heap[1];
 
 		if (heapIdx == 0)
 			break;
 
-		heap[0] = heap[heapIdx - 2];
+		heap[0] = heap[heapIdx - 2]; // remove root node from heap
 		heap[1] = heap[heapIdx - 1];
+		heapIdx -= 2;
+		for (int i = heapIdx / 2 - 1; i >= 0; i -= 2) // heapify again
+			heapify(heap, heapIdx, i);
 
 		// 2
-		// int readyAt = head->readyAt;
 		cpuBusyUntil = returnMax(cpuBusyUntil, readyAt);
-		// r = head->currentProcessIndex;
 		cpuBusyUntil += timesMatrix[r][rowIdx[r]];
 
-		// // 3
+		// 3
 		if (timesMatrix[r][rowIdx[r] + 1] == -1)
 		{
 			finishTimes[r] = cpuBusyUntil;
-			// free(head);
+			printf("process ended cpu\n");
 			continue;
 		}
+
+		rowIdx[r] += 1;
+
 		ioBusyUntil = returnMax(ioBusyUntil, cpuBusyUntil);
-		ioBusyUntil += timesMatrix[r][rowIdx[r] + 1];
+		ioBusyUntil += timesMatrix[r][rowIdx[r]];
 
-		// // 4
-		rowIdx[r] += 2;
+		if (timesMatrix[r][rowIdx[r] + 1] == -1)
+		{
+			finishTimes[r] = ioBusyUntil;
+			printf("process ended io\n");
+			continue;
+		}
 
-		// // 5
-		// struct Node *new = newNode(ioBusyUntil, r);
-		// sortedInsert(&list, new);
-		if (heapIdx + 2 < heapSize)
-			heap = realloc(heap, 2 * heapSize * sizeof(int));
+		// 4
+		rowIdx[r] += 1;
+		readyAt = ioBusyUntil;
+
+		// 5
+		if (heapIdx + 2 > heapSize)
+		{
+			heapSize *= 2;
+			heap = realloc(heap, heapSize * sizeof(int));
+		}
+
+		heapIdx += 2;
+		heap[heapIdx - 2] = readyAt;
+		heap[heapIdx - 1] = r;
+		for (int i = heapIdx / 2 - 1; i >= 0; i -= 2) // heapify again
+			heapify(heap, heapIdx, i);
 
 		printf("loop: r %d, readyAt %d, cpu %d, io %d\n", r, readyAt, cpuBusyUntil, ioBusyUntil);
-		// free(head);
 	}
 
 	for (int i = 0; i < numberOfProcesses; i++)
