@@ -30,7 +30,7 @@ struct Node *pop(struct Node **list)
 
 void sortedInsert(struct Node **list, struct Node *new_node)
 {
-    struct Node *current;
+    struct Node *current = (struct Node *)malloc(sizeof(struct Node));
     /* Special case for the head end */
     if (*list == NULL || (*list)->readyAt >= new_node->readyAt)
     {

@@ -110,21 +110,24 @@ int main(int argc, char *argv[])
 	int numberOfProcesses = i;
 
 	int notFinished = 1, cpuBusyUntil = 0, ioBusyUntil = 0, r = 0;
-	int *rowIdx = malloc(numberOfProcesses * sizeof(int));
+	int *rowIdx = (int *)malloc(numberOfProcesses * sizeof(int));
+
+	struct Node *list = NULL;
 
 	for (int i = 0; i < numberOfProcesses; i++)
 	{
-		rowIdx[i] = 0;
+		struct Node *new = newNode(timesMatrix[i][0], i);
+		sortedInsert(&list, new);
+		rowIdx[i] = 1;
 	}
 
-	struct Node *list = NULL;
-	struct Node *new = newNode(timesMatrix[0][0], 0);
-	sortedInsert(&list, new);
-
-	while (list != NULL)
+	// while (list != NULL)
+	int loop = 0;
+	while (loop < 20)
 	{
+		loop++;
 		// 1
-		struct Node *head = (struct Node *)malloc(sizeof(Node));
+		struct Node *head = (struct Node *)malloc(sizeof(struct Node));
 		head = pop(&list);
 
 		// 2
@@ -137,6 +140,7 @@ int main(int argc, char *argv[])
 		if (timesMatrix[r][rowIdx[r] + 1] == -1)
 		{
 			finishTimes[r] = cpuBusyUntil;
+			free(head);
 			continue;
 		}
 		ioBusyUntil = returnMax(ioBusyUntil, cpuBusyUntil);
