@@ -3,7 +3,6 @@
 #include <math.h>
 #include <ctype.h>
 
-#include "list.h"
 #include "heap.h"
 
 /*
@@ -38,12 +37,17 @@
 	   Add the io time at [i][ri+1] to ioBusyUntil <this is after adding the current process' IO time.>
 
 	4. ri +=2;
-	   readyAt = ioBusyUntil
 
-	5. Add [readyAt, currentProcessIndex] to ordered list.
+
+	5. readyAt = ioBusyUntil
+	   Add [readyAt, currentProcessIndex] to ordered list.
 
 	The loop ends when there is nothing in the list anymore, i.e. NULL pointer.
 */
+
+int max(int x, int y){
+	return (x > y? x : y);
+}
 
 void printArrays(int *r, int *p, int length){
 	for(int i=1 ; i<length ; i++)
@@ -62,12 +66,13 @@ int returnMax(int a, int b)
 
 int main(int argc, char *argv[])
 {
-	int processCapability = DEFAULT_ARRAY_LENGTH, *startTimes, *finishTimes, **timesMatrix;
+	int processCapability = DEFAULT_ARRAY_LENGTH, *startTimes, *finishTimes, *matrixRowIndexes, **timesMatrix;
 	char c;
 
 	timesMatrix = malloc(processCapability * sizeof(int *));
 	startTimes = malloc(processCapability * sizeof(int));
 	finishTimes = malloc(processCapability * sizeof(int));
+	matrixRowIndexes = malloc(processCapability * sizeof(int));
 
 	int ignoredPriority, newNumber, i = 0, j, arraySize;
 
@@ -79,6 +84,7 @@ int main(int argc, char *argv[])
 			timesMatrix = realloc(timesMatrix, processCapability * sizeof(int *));
 			startTimes = realloc(startTimes, processCapability * sizeof(int));
 			finishTimes = realloc(finishTimes, processCapability * sizeof(int));
+			matrixRowIndexes = realloc(matrixRowIndexes, processCapability * sizeof(int));
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
@@ -125,29 +131,61 @@ int main(int argc, char *argv[])
 		} while (timesMatrix[r][c] != -1);
 		putchar('\n');
 	}
-
-
-	// initialize variables
-	int cpuBusyUntil = 0, ioBusyUntil = 0, r = 0;
-	int *rowIdx = (int *)malloc(numberOfProcesses * sizeof(int));
-	int *heap = (int *)malloc(2 * numberOfProcesses * sizeof(int));
-	int heapIdx = 0, heapSize = 2 * numberOfProcesses;
 */
 	Heap h = makeHeap();
-	int readyAt;
+	int readyAt, process, cpuBusyUntil=0, ioBusyUntil=0, ri;
 
 	// Loop over process indexes pi, to enqueue pairs of (readyAt, pi) into the heap.
 	for (int pi = 0; pi < numberOfProcesses; pi++)
 	{
 		readyAt = startTimes[pi];
 		enqueue(&h, readyAt, pi);
+		matrixRowIndexes[pi] = 0;
 	}
 
 	printArrays(h.ready, h.pro, h.front);
+
+	while( !isEmptyHeap(h) ){
+		/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)
+	   		  Remove that node. */
+		removeMin(&h, &readyAt, &process); 				//store return values using pointers
+
+		//2
+		ri = matrixRowIndexes[process];
+		cpuBusyUntil = max(cpuBusyUntil, readyAt);		//this is before adding the current process' CPU time
+		cpuBusyUntil += timesMatrix[process][ri];   	//this is after adding the current process' CPU time
+
+		//3
+		if( timesMatrix[process][ri+1] == -1){
+			finishTimes[process] = cpuBusyUntil;
+			continue;
+		}
+		ioBusyUntil = max(ioBusyUntil, cpuBusyUntil);	//this is before adding the current process' IO time.
+		ioBusyUntil += timesMatrix[process][ri+1];		//this is after adding the current process' IO time.
+
+		//4
+		if( timesMatrix[process][ri+2] == -1){
+			finishTimes[process] = ioBusyUntil;
+			continue;
+		}
+		matrixRowIndexes[process] = ri+2;
+
+		//5
+		readyAt = ioBusyUntil;
+		enqueue(&h, readyAt, process);
+	}
+
+	int sum = 0;
+	for (int i = 0; i < numberOfProcesses; i++)
+	{
+		sum += finishTimes[i] - startTimes[i];
+		printf("%d ", finishTimes[i]);
+		putchar('\n');
+	}
+
+	printf("%d\n", sum / numberOfProcesses);
+
 /*
-	// heapify heap array
-	for (int i = heapIdx / 2 - 1; i >= 0; i -= 2)
-		heapify(heap, heapIdx, i);
 
 	while (heapIdx != 0)
 	{
@@ -207,16 +245,6 @@ int main(int argc, char *argv[])
 
 		printf("loop: r %d, readyAt %d, cpu %d, io %d\n", r, readyAt, cpuBusyUntil, ioBusyUntil);
 	}
-
-	int sum = 0;
-	for (int i = 0; i < numberOfProcesses; i++)
-	{
-		sum += finishTimes[i] - startTimes[i];
-		printf("%d ", finishTimes[i]);
-		putchar('\n');
-	}
-
-	printf("%d\n", sum / numberOfProcesses);
 
 	// freeList(list);
 	free(heap);

@@ -16,6 +16,10 @@ Heap makeHeap(){
 	return h;
 }
 
+int isEmptyHeap(Heap h){
+	return h.front == 1;
+}
+
 void doubleHeapSize(Heap *hp){
 	hp->size *= 2;
 
