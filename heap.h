@@ -1,8 +1,27 @@
-#ifndef HEAP_H
-#define HEAP_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <assert.h>
 
-void swap(int *x, int *y);
-void heapify(int *arr, int size, int subidx);
-// void heapSort(int *arr, int size);
+int DEFAULT_ARRAY_LENGTH;
 
-#endif
+typedef struct Heap{
+	int *ready;
+	int *pro;		//process (index)
+	int front;		//first free position
+	int size;
+} Heap;
+
+Heap makeHeap();
+
+void doubleHeapSize(Heap *hp);
+
+void swap(int *a, int *b);
+
+void upheap(Heap *hp, int i);
+
+void downheap(Heap *hp, int i);
+
+void enqueue(Heap *hp, int readyAt, int process);
+
+void removeMin(Heap *hp, int *minReady, int *minProcess);

@@ -44,7 +44,12 @@
 
 	The loop ends when there is nothing in the list anymore, i.e. NULL pointer.
 */
-int DEFAULT_ARRAY_LENGTH = 10;
+
+void printArrays(int *r, int *p, int length){
+	for(int i=1 ; i<length ; i++)
+		printf("[%d, %d] ", r[i], p[i]);
+	putchar('\n');
+}
 
 int returnMax(int a, int b)
 {
@@ -110,20 +115,36 @@ int main(int argc, char *argv[])
 	} while (1);
 	int numberOfProcesses = i;
 
+/*
+	printf("matrix:\n\n");
+	for(int r=0 ; r<numberOfProcesses ; r++){
+		int c=0;
+		do{
+			printf("%d ", timesMatrix[r][c]);
+			c++;
+		} while (timesMatrix[r][c] != -1);
+		putchar('\n');
+	}
+
+
 	// initialize variables
 	int cpuBusyUntil = 0, ioBusyUntil = 0, r = 0;
 	int *rowIdx = (int *)malloc(numberOfProcesses * sizeof(int));
 	int *heap = (int *)malloc(2 * numberOfProcesses * sizeof(int));
 	int heapIdx = 0, heapSize = 2 * numberOfProcesses;
+*/
+	Heap h = makeHeap();
+	int readyAt;
 
-	for (int i = 0; i < numberOfProcesses; i++)
+	// Loop over process indexes pi, to enqueue pairs of (readyAt, pi) into the heap.
+	for (int pi = 0; pi < numberOfProcesses; pi++)
 	{
-		heap[heapIdx] = startTimes[i];
-		heap[heapIdx + 1] = i;
-		heapIdx += 2;
-		rowIdx[i] = 0;
+		readyAt = startTimes[pi];
+		enqueue(&h, readyAt, pi);
 	}
 
+	printArrays(h.ready, h.pro, h.front);
+/*
 	// heapify heap array
 	for (int i = heapIdx / 2 - 1; i >= 0; i -= 2)
 		heapify(heap, heapIdx, i);
@@ -207,6 +228,6 @@ int main(int argc, char *argv[])
 	free(timesMatrix);
 	free(finishTimes);
 	free(startTimes);
-
+*/
 	return 0;
 }
