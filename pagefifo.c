@@ -31,20 +31,23 @@ int main(int argc, char *argv[])
     // #misses = #frames then
     for (int i = 0; i < frames; i++)
     {
-        int x;
-        scanf("%d", &x);
-        arr[i] = x;
-        times[i] = i;
+        // int x;
+        // scanf("%d", &x);
+        arr[i] = 0;
+        times[i] = 0;
     }
-    int misses = frames;
+    int misses = 0;
 
     // page reads the input, idx keeps track of which frame should be compared/updated
     // time keeps track of the number of updates over all frames
     int page, idx = 0, time = frames;
     // c makes sure the newline is read at the end
     char c;
-    while ((c = getchar()) != EOF && c != '\n')
+    int flag = 0;
+
+    while (((c = getchar()) != EOF && c != '\n') || (flag == 0))
     {
+        flag = 1;
         scanf("%d", &page);
         if (arr[idx] != page)
         {

@@ -24,18 +24,20 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < frames; i++)
     {
-        int x;
-        scanf("%d", &x);
-        arr[i] = x;
+        //     int x;
+        //     scanf("%d", &x);
+        arr[i] = 0;
         rbit[i] = 0;
     }
-    int misses = frames;
+    int misses = 0;
 
     int page, idx = 0;
-    char c;
+    char c; // = getchar(); // ignore newline
+    int flag = 0;
 
-    while ((c = getchar()) != EOF && c != '\n')
+    while (((c = getchar()) != EOF && c != '\n') || (flag == 0))
     {
+        flag = 1;
         scanf("%d", &page);
         int findIdx = find(arr, frames, page);
 
