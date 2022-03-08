@@ -19,7 +19,7 @@ void freeMatrix(double **matrix, int rows){
 
 int main(int argc, char *argv[])
 {
-	int processCapability = DEFAULT_ARRAY_LENGTH, *matrixRowIndexes;
+	int processCapability = DEFAULT_ARRAY_LENGTH, *matrixRowIndexes, *priorities;
 	double *startTimes, *finishTimes, **timesMatrix;
 
 	timesMatrix = malloc(processCapability * sizeof(double *));
@@ -36,11 +36,12 @@ int main(int argc, char *argv[])
 			processCapability *= 2;
 			timesMatrix = realloc(timesMatrix, processCapability * sizeof(double *));
 			startTimes = realloc(startTimes, processCapability * sizeof(double));
+			priorities = realloc(priorities, processCapability * sizeof(int));
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
 		timesMatrix[i] = malloc(arraySize * sizeof(double));
-		scanf("%lf %*d", &startTimes[i]); // priority is unneeded for fcfs, so we scan but ignore it.
+		scanf("%lf %d", &startTimes[i], &priorities[i]);
 		j = 0;
 
 		do
@@ -66,61 +67,62 @@ int main(int argc, char *argv[])
 
 	} while (1);
 
-	Heap h = makeHeap();
-	double readyAt, cpuBusyUntil=0, ioBusyUntil=0;
-	int process, ri, numberOfProcesses = i;
+	Heap unstartedProcesses = makeHeap();
+	double readyAt;
+	int priority, numberOfProcesses = i;
 
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
 
-	// Loop over process indexes pi, to enqueue pairs of (readyAt, pi) into the heap.
+	// Loop over process indexes pi, to enqueue triples (ready, process, priority) into the heap.
 	for (int pi = 0; pi < numberOfProcesses; pi++)
 	{
-		readyAt = startTimes[pi];
-		enqueue(&h, readyAt, pi);
+		readyAt  = startTimes[pi];
+		priority = priorities[pi];
+		insert(&unstartedProcesses, readyAt, pi, priority);
 		matrixRowIndexes[pi] = 0;
 	}
-
-	while( !isEmptyHeap(h) ){
-		/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)
-	   		  Remove that node. */
-		removeMin(&h, &readyAt, &process); 				//store return values using pointers
-
-		//2
-		ri = matrixRowIndexes[process];
-		cpuBusyUntil = max(cpuBusyUntil, readyAt) + timesMatrix[process][ri];
-
-		//3
-		if( timesMatrix[process][ri+1] == -1){
-			finishTimes[process] = cpuBusyUntil;
-			continue;
-		}
-		ioBusyUntil = max(ioBusyUntil, cpuBusyUntil) + timesMatrix[process][ri+1];		//this is after.
-
-		//4
-		if( timesMatrix[process][ri+2] == -1){
-			finishTimes[process] = ioBusyUntil;
-			continue;
-		}
-		matrixRowIndexes[process] = ri+2;
-
-		//5
-		readyAt = ioBusyUntil;
-		enqueue(&h, readyAt, process);
-	}
-
-	double sum = 0;
-	for (int i = 0; i < numberOfProcesses; i++)
-		sum += finishTimes[i] - startTimes[i];
-	printf("%.0lf\n", sum / numberOfProcesses);
-
-	free(startTimes);
-	free(finishTimes);
-	free(matrixRowIndexes);
-
-	freeMatrix(timesMatrix, numberOfProcesses);
-	free(h.ready);
-	free(h.pro);
+	//
+	// while( !isEmptyHeap(h) ){
+	// 	/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)
+	//    		  Remove that node. */
+	// 	removeMin(&h, &readyAt, &process); 				//store return values using pointers
+	//
+	// 	//2
+	// 	ri = matrixRowIndexes[process];
+	// 	cpuBusyUntil = max(cpuBusyUntil, readyAt) + timesMatrix[process][ri];
+	//
+	// 	//3
+	// 	if( timesMatrix[process][ri+1] == -1){
+	// 		finishTimes[process] = cpuBusyUntil;
+	// 		continue;
+	// 	}
+	// 	ioBusyUntil = max(ioBusyUntil, cpuBusyUntil) + timesMatrix[process][ri+1];		//this is after.
+	//
+	// 	//4
+	// 	if( timesMatrix[process][ri+2] == -1){
+	// 		finishTimes[process] = ioBusyUntil;
+	// 		continue;
+	// 	}
+	// 	matrixRowIndexes[process] = ri+2;
+	//
+	// 	//5
+	// 	readyAt = ioBusyUntil;
+	// 	enqueue(&h, readyAt, process);
+	// }
+	//
+	// double sum = 0;
+	// for (int i = 0; i < numberOfProcesses; i++)
+	// 	sum += finishTimes[i] - startTimes[i];
+	// printf("%.0lf\n", sum / numberOfProcesses);
+	//
+	// free(startTimes);
+	// free(finishTimes);
+	// free(matrixRowIndexes);
+	//
+	// freeMatrix(timesMatrix, numberOfProcesses);
+	// free(h.ready);
+	// free(h.pro);
 
 	return 0;
 }
