@@ -84,27 +84,30 @@ int main(int argc, char *argv[])
 		matrixRowIndexes[pi] = 0;
 	}
 
-	// printf("matrix:\n\n");
-	// for(int r=0 ; r<numberOfProcesses ; r++){
-	// 	int c=0;
-	// 	do{
-	// 		printf("%.0lf ", timesMatrix[r][c]);
-	// 		c++;
-	// 	} while (timesMatrix[r][c] != -1);
-	// 	putchar('\n');
-	// }
-	// printf("heap: ");
-	// printHeap(unstartedProcesses);
+	printf("matrix:\n\n");
+	for(int r=0 ; r<numberOfProcesses ; r++){
+		int c=0;
+		do{
+			printf("%.0lf ", timesMatrix[r][c]);
+			c++;
+		} while (timesMatrix[r][c] != -1);
+		putchar('\n');
+	}
+	printf("heap: ");
+	printHeap(unstartedProcesses);
 
 	Queue cpuQ1 = newQueue(), ioQ = newQueue();
 	int p, processUsingCPU1=-1, processUsingIO=-1, t=0;
 	double ioBusyUntil, cpuBusyUntil;
 
 	while( !isEmptyQueue(cpuQ1) || !isEmptyHeap(unstartedProcesses) ){
+		printf("t = %d\n", t);
 		// 2 Handle new, incoming process.
 		if( t >= getMin(unstartedProcesses)){
 			removeMin(&unstartedProcesses, &readyAt, &priority, &process);
 			enqueue(&cpuQ1, process);
+			printf("cpuQ1: ");
+			printQueue(cpuQ1);
 		}
 
 		// 3.1 Handle processes finishing an IO task.
@@ -119,6 +122,9 @@ int main(int argc, char *argv[])
 				enqueue(&cpuQ1, p);
 			}
 			processUsingIO = -1;
+
+			printf("ioQ: ");
+			printQueue(ioQ);
 		}
 		// 3.2 The IO can be used for a new process.
 		if( processUsingIO == -1 && !isEmptyQueue(ioQ)){
@@ -128,6 +134,9 @@ int main(int argc, char *argv[])
 			processUsingIO = p;
 			ioBusyUntil = t + timesMatrix[i][p];
 			matrixRowIndexes[p]++;
+
+			printf("ioQ: ");
+			printQueue(ioQ);
 		}
 
 		// 4.1 Handle processes finishing a CPU task.
@@ -141,6 +150,8 @@ int main(int argc, char *argv[])
 			} else {
 				enqueue(&ioQ, p);
 			}
+			printf("cpuQ1: ");
+			printQueue(cpuQ1);
 		}
 		// 4.2 The CPU can be used for a new process.
 		if( processUsingCPU1 == -1 && !isEmptyQueue(cpuQ1)){
@@ -150,10 +161,18 @@ int main(int argc, char *argv[])
 			processUsingCPU1 = p;
 			cpuBusyUntil = t + timesMatrix[i][p];
 			matrixRowIndexes[p]++;
+
+			printf("cpuQ1: ");
+			printQueue(cpuQ1);
 		}
 
 		t++;
 	}
+
+	printf("finishTimes: ");
+	for(p=0 ; p<numberOfProcesses ; p++)
+		printf("%.0lf ", finishTimes[p]);
+	putchar('\n');
 
 	return 0;
 }
