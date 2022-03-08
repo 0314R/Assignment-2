@@ -64,6 +64,13 @@ int returnMax(int a, int b)
 	return b;
 }
 
+void freeMatrix(double **matrix, int rows){
+	for(int i=0 ; i<rows ; i++){
+		free(matrix[i]);
+	}
+	free(matrix);
+}
+
 int main(int argc, char *argv[])
 {
 	int processCapability = DEFAULT_ARRAY_LENGTH, *matrixRowIndexes;
@@ -188,6 +195,14 @@ int main(int argc, char *argv[])
 	}
 
 	printf("%.0lf\n", sum / numberOfProcesses);
+
+	freeMatrix(timesMatrix, numberOfProcesses);
+	free(startTimes);
+	free(finishTimes);
+	free(matrixRowIndexes);
+
+	free(h.ready);
+	free(h.pro);
 
 /*
 
