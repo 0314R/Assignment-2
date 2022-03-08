@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
 	Heap unstartedProcesses = makeHeap();
 	double readyAt;
-	int priority, numberOfProcesses = i;
+	int process, priority, numberOfProcesses = i;
 
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
@@ -84,59 +84,76 @@ int main(int argc, char *argv[])
 		matrixRowIndexes[pi] = 0;
 	}
 
-	printf("matrix:\n\n");
-	for(int r=0 ; r<numberOfProcesses ; r++){
-		int c=0;
-		do{
-			printf("%.0lf ", timesMatrix[r][c]);
-			c++;
-		} while (timesMatrix[r][c] != -1);
-		putchar('\n');
-	}
-	printf("heap: ");
-	printHeap(unstartedProcesses);
-
-	//
-	// while( !isEmptyHeap(h) ){
-	// 	/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)
-	//    		  Remove that node. */
-	// 	removeMin(&h, &readyAt, &process); 				//store return values using pointers
-	//
-	// 	//2
-	// 	ri = matrixRowIndexes[process];
-	// 	cpuBusyUntil = max(cpuBusyUntil, readyAt) + timesMatrix[process][ri];
-	//
-	// 	//3
-	// 	if( timesMatrix[process][ri+1] == -1){
-	// 		finishTimes[process] = cpuBusyUntil;
-	// 		continue;
-	// 	}
-	// 	ioBusyUntil = max(ioBusyUntil, cpuBusyUntil) + timesMatrix[process][ri+1];		//this is after.
-	//
-	// 	//4
-	// 	if( timesMatrix[process][ri+2] == -1){
-	// 		finishTimes[process] = ioBusyUntil;
-	// 		continue;
-	// 	}
-	// 	matrixRowIndexes[process] = ri+2;
-	//
-	// 	//5
-	// 	readyAt = ioBusyUntil;
-	// 	enqueue(&h, readyAt, process);
+	// printf("matrix:\n\n");
+	// for(int r=0 ; r<numberOfProcesses ; r++){
+	// 	int c=0;
+	// 	do{
+	// 		printf("%.0lf ", timesMatrix[r][c]);
+	// 		c++;
+	// 	} while (timesMatrix[r][c] != -1);
+	// 	putchar('\n');
 	// }
-	//
-	// double sum = 0;
-	// for (int i = 0; i < numberOfProcesses; i++)
-	// 	sum += finishTimes[i] - startTimes[i];
-	// printf("%.0lf\n", sum / numberOfProcesses);
-	//
-	// free(startTimes);
-	// free(finishTimes);
-	// free(matrixRowIndexes);
-	//
-	// freeMatrix(timesMatrix, numberOfProcesses);
-	// free(h.ready);
-	// free(h.pro);
+	// printf("heap: ");
+	// printHeap(unstartedProcesses);
+
+	Queue cpuQ1 = newQueue(), ioQ = newQueue();
+	int p, processUsingCPU1=-1, processUsingIO=-1, t=0;
+	double ioBusyUntil, cpuBusyUntil;
+
+	while( !isEmptyQueue(cpuQ1) || !isEmptyHeap(unstartedProcesses) ){
+		// 2 Handle new, incoming process.
+		if( t >= getMin(unstartedProcesses)){
+			removeMin(&unstartedProcesses, &readyAt, &priority, &process);
+			enqueue(&cpuQ1, process);
+		}
+
+		// 3.1 Handle processes finishing an IO task.
+		if( (processUsingIO != -1) && (t >= ioBusyUntil) ){
+			p = processUsingIO;
+			i = matrixRowIndexes[p];
+
+			// If the process has no more CPU need, it is finished. Else it gets in a queue for the cpu.
+			if( timesMatrix[p][i] == -1){
+				finishTimes[p] = ioBusyUntil;
+			} else {
+				enqueue(&cpuQ1, p);
+			}
+			processUsingIO = -1;
+		}
+		// 3.2 The IO can be used for a new process.
+		if( processUsingIO == -1 && !isEmptyQueue(ioQ)){
+			p = dequeue(&ioQ);
+			i = matrixRowIndexes[p];
+
+			processUsingIO = p;
+			ioBusyUntil = t + timesMatrix[i][p];
+			matrixRowIndexes[p]++;
+		}
+
+		// 4.1 Handle processes finishing a CPU task.
+		if( (processUsingCPU1 != -1) && (t >= cpuBusyUntil) ){
+			p = processUsingCPU1;
+			i = matrixRowIndexes[p];
+
+			// If the process has no more IO need, it is finished. Else it gets in the IO queue.
+			if( timesMatrix[p][i] == -1){
+				finishTimes[p] = cpuBusyUntil;
+			} else {
+				enqueue(&ioQ, p);
+			}
+		}
+		// 4.2 The CPU can be used for a new process.
+		if( processUsingCPU1 == -1 && !isEmptyQueue(cpuQ1)){
+			p = dequeue(&cpuQ1);
+			i = matrixRowIndexes[p];
+
+			processUsingCPU1 = p;
+			cpuBusyUntil = t + timesMatrix[i][p];
+			matrixRowIndexes[p]++;
+		}
+
+		t++;
+	}
 
 	return 0;
 }

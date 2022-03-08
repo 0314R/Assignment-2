@@ -92,6 +92,10 @@ void insert(Heap *hp, double readyAt, int priority, int process){
 	hp->front = fr+1;
 }
 
+double getMin(Heap h){
+	return h.ready[1];
+}
+
 void removeMin(Heap *hp, double *minReady, int *minProcess, int *minPriority){
 	*minReady = hp->ready[1];
 	*minProcess = hp->process[1];

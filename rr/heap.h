@@ -31,6 +31,8 @@ void downheap(Heap *hp, int i);
 
 void insert(Heap *hp, double readyAt, int priority, int process);
 
+double getMin(Heap h);
+
 void removeMin(Heap *hp, double *minReady, int *minProcess, int *minPriority);
 
 void printHeap(Heap h);
