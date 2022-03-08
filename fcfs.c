@@ -49,21 +49,6 @@ int max(int x, int y){
 	return (x > y? x : y);
 }
 
-void printArrays(int *r, int *p, int length){
-	for(int i=1 ; i<length ; i++)
-		printf("[%d, %d] ", r[i], p[i]);
-	putchar('\n');
-}
-
-int returnMax(int a, int b)
-{
-	if (a > b)
-	{
-		return a;
-	}
-	return b;
-}
-
 void freeMatrix(double **matrix, int rows){
 	for(int i=0 ; i<rows ; i++){
 		free(matrix[i]);
@@ -131,17 +116,6 @@ int main(int argc, char *argv[])
 	} while (1);
 	int numberOfProcesses = i;
 
-/*
-	printf("matrix:\n\n");
-	for(int r=0 ; r<numberOfProcesses ; r++){
-		int c=0;
-		do{
-			printf("%d ", timesMatrix[r][c]);
-			c++;
-		} while (timesMatrix[r][c] != -1);
-		putchar('\n');
-	}
-*/
 	Heap h = makeHeap();
 	double readyAt, cpuBusyUntil=0, ioBusyUntil=0;
 	int process, ri;
@@ -153,8 +127,6 @@ int main(int argc, char *argv[])
 		enqueue(&h, readyAt, pi);
 		matrixRowIndexes[pi] = 0;
 	}
-
-	//printArrays(h.ready, h.pro, h.front);
 
 	while( !isEmptyHeap(h) ){
 		/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)
@@ -190,8 +162,6 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < numberOfProcesses; i++)
 	{
 		sum += finishTimes[i] - startTimes[i];
-		//printf("%d ", finishTimes[i]);
-		//putchar('\n');
 	}
 
 	printf("%.0lf\n", sum / numberOfProcesses);
@@ -204,77 +174,5 @@ int main(int argc, char *argv[])
 	free(h.ready);
 	free(h.pro);
 
-/*
-
-	while (heapIdx != 0)
-	{
-		// 1
-		int readyAt = heap[0];
-		int r = heap[1];
-
-		if (heapIdx == 0)
-			break;
-
-		heap[0] = heap[heapIdx - 2]; // remove root node from heap
-		heap[1] = heap[heapIdx - 1];
-		heapIdx -= 2;
-		for (int i = heapIdx / 2 - 1; i >= 0; i -= 2) // heapify again
-			heapify(heap, heapIdx, i);
-
-		// 2
-		cpuBusyUntil = returnMax(cpuBusyUntil, readyAt);
-		cpuBusyUntil += timesMatrix[r][rowIdx[r]];
-
-		// 3
-		if (timesMatrix[r][rowIdx[r] + 1] == -1)
-		{
-			finishTimes[r] = cpuBusyUntil;
-			printf("process ended cpu\n");
-			continue;
-		}
-
-		rowIdx[r] += 1;
-
-		ioBusyUntil = returnMax(ioBusyUntil, cpuBusyUntil);
-		ioBusyUntil += timesMatrix[r][rowIdx[r]];
-
-		if (timesMatrix[r][rowIdx[r] + 1] == -1)
-		{
-			finishTimes[r] = ioBusyUntil;
-			printf("process ended io\n");
-			continue;
-		}
-
-		// 4
-		rowIdx[r] += 1;
-		readyAt = ioBusyUntil;
-
-		// 5
-		if (heapIdx + 2 > heapSize)
-		{
-			heapSize *= 2;
-			heap = realloc(heap, heapSize * sizeof(int));
-		}
-
-		heapIdx += 2;
-		heap[heapIdx - 2] = readyAt;
-		heap[heapIdx - 1] = r;
-		for (int i = heapIdx / 2 - 1; i >= 0; i -= 2) // heapify again
-			heapify(heap, heapIdx, i);
-
-		printf("loop: r %d, readyAt %d, cpu %d, io %d\n", r, readyAt, cpuBusyUntil, ioBusyUntil);
-	}
-
-	// freeList(list);
-	free(heap);
-	free(rowIdx);
-	for (int i = 0; i < processCapability; i++)
-	{
-		free(timesMatrix[i]);
-	}
-	free(timesMatrix);
-	free(finishTimes);
-	free(startTimes);
-*/
 	return 0;
 }

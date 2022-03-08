@@ -47,10 +47,8 @@ void upheap(Heap *hp, int i){
 
 	int pi = i/2; 			//pi index = index/2
 	if( hp->ready[i] < hp->ready[pi]){
-		//printf("upheap swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], pi, hp->ready[pi], hp->pro[pi]);
 		swapDouble( &(hp->ready[i]), &(hp->ready[pi]) );
 		swapInt( &(hp->pro[i]), &(hp->pro[pi]) );
-		//printf("after  swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], pi, hp->ready[pi], hp->pro[pi]);
 		upheap(hp, pi);
 	}
 }
@@ -65,39 +63,25 @@ void downheap(Heap *hp, int i){
 		rci = lci;			// this simplifies code below
 
 	if( hp->ready[lci] < hp->ready[rci] && hp->ready[lci] < hp->ready[i]){
-		////printf("downheap swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], lci, hp->ready[lci], hp->pro[lci]);
 		swapDouble( &(hp->ready[lci]), &(hp->ready[i]) );
 		swapInt( &(hp->pro[lci]), &(hp->pro[i]) );
-		////printf("after    swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], lci, hp->ready[lci], hp->pro[lci]);
 		downheap(hp, lci);
 	}
 	else if ( hp->ready[rci] < hp->ready[i] ){
-		////printf("downheap swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], rci, hp->ready[rci], hp->pro[rci]);
 		swapDouble( &(hp->ready[rci]), &(hp->ready[i]) );
 		swapInt( &(hp->pro[rci]), &(hp->pro[i]) );
-		////printf("after    swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], rci, hp->ready[rci], hp->pro[rci]);
 		downheap(hp, rci);
 	}
 }
 
 void enqueue(Heap *hp, double readyAt, int process){
 	int fr = hp->front;
-	//printf("COMPARING FR=%d with SIZE=%d\n", fr, hp->size);
 	if( fr == hp->size -1 ){
-		//printf("doubling heap size to %d\n", 2*hp->size);
 		doubleHeapSize(hp);
 	}
-
-	//printf("right before enqueing into index %d\n", fr);
-	//for(int i=1 ; i<hp->front ; i++)
-		//printf("[%d, %d] ", hp->ready[i], hp->pro[i]);
-	//putchar('\n');
 	hp->ready[fr] = readyAt;
 	hp->pro[fr] = process;
-	//printf("right after  enqueing into index %d\n", fr);
-	//for(int i=1 ; i<=hp->front ; i++)
-		//printf("[%d, %d] ", hp->ready[i], hp->pro[i]);
-	//putchar('\n');
+
 	upheap(hp, fr);
 	hp->front = fr+1;
 }
