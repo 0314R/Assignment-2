@@ -5,7 +5,7 @@ int DEFAULT_ARRAY_LENGTH = 10;
 Heap makeHeap(){
 	Heap h;
 
-	h.ready = malloc(DEFAULT_ARRAY_LENGTH * sizeof(int));
+	h.ready = malloc(DEFAULT_ARRAY_LENGTH * sizeof(double));
 	h.pro 	= malloc(DEFAULT_ARRAY_LENGTH * sizeof(int));
 	assert(h.ready != NULL);
 	assert(h.pro != NULL);
@@ -23,14 +23,20 @@ int isEmptyHeap(Heap h){
 void doubleHeapSize(Heap *hp){
 	hp->size *= 2;
 
-	hp->ready = realloc(hp->ready, hp->size * sizeof(int));
+	hp->ready = realloc(hp->ready, hp->size * sizeof(double));
 	hp->pro = realloc(hp->pro, hp->size * sizeof(int));
 	assert(hp->ready != NULL);
 	assert(hp->pro != NULL);
 }
 
-void swap(int *a, int *b){
+void swapInt(int *a, int *b){
 	int temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+void swapDouble(double *a, double *b){
+	double temp = *a;
 	*a = *b;
 	*b = temp;
 }
@@ -42,8 +48,8 @@ void upheap(Heap *hp, int i){
 	int pi = i/2; 			//pi index = index/2
 	if( hp->ready[i] < hp->ready[pi]){
 		//printf("upheap swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], pi, hp->ready[pi], hp->pro[pi]);
-		swap( &(hp->ready[i]), &(hp->ready[pi]) );
-		swap( &(hp->pro[i]), &(hp->pro[pi]) );
+		swapDouble( &(hp->ready[i]), &(hp->ready[pi]) );
+		swapInt( &(hp->pro[i]), &(hp->pro[pi]) );
 		//printf("after  swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], pi, hp->ready[pi], hp->pro[pi]);
 		upheap(hp, pi);
 	}
@@ -60,21 +66,21 @@ void downheap(Heap *hp, int i){
 
 	if( hp->ready[lci] < hp->ready[rci] && hp->ready[lci] < hp->ready[i]){
 		////printf("downheap swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], lci, hp->ready[lci], hp->pro[lci]);
-		swap( &(hp->ready[lci]), &(hp->ready[i]) );
-		swap( &(hp->pro[lci]), &(hp->pro[i]) );
+		swapDouble( &(hp->ready[lci]), &(hp->ready[i]) );
+		swapInt( &(hp->pro[lci]), &(hp->pro[i]) );
 		////printf("after    swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], lci, hp->ready[lci], hp->pro[lci]);
 		downheap(hp, lci);
 	}
 	else if ( hp->ready[rci] < hp->ready[i] ){
 		////printf("downheap swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], rci, hp->ready[rci], hp->pro[rci]);
-		swap( &(hp->ready[rci]), &(hp->ready[i]) );
-		swap( &(hp->pro[rci]), &(hp->pro[i]) );
+		swapDouble( &(hp->ready[rci]), &(hp->ready[i]) );
+		swapInt( &(hp->pro[rci]), &(hp->pro[i]) );
 		////printf("after    swap %d= [%d, %d] %d= [%d, %d]\n", i, hp->ready[i], hp->pro[i], rci, hp->ready[rci], hp->pro[rci]);
 		downheap(hp, rci);
 	}
 }
 
-void enqueue(Heap *hp, int readyAt, int process){
+void enqueue(Heap *hp, double readyAt, int process){
 	int fr = hp->front;
 	//printf("COMPARING FR=%d with SIZE=%d\n", fr, hp->size);
 	if( fr == hp->size -1 ){
@@ -96,7 +102,7 @@ void enqueue(Heap *hp, int readyAt, int process){
 	hp->front = fr+1;
 }
 
-void removeMin(Heap *hp, int *minReady, int *minProcess){
+void removeMin(Heap *hp, double *minReady, int *minProcess){
 	*minReady = hp->ready[1];
 	*minProcess = hp->pro[1];
 	hp->front--;

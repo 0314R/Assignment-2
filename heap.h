@@ -9,7 +9,7 @@
 int DEFAULT_ARRAY_LENGTH;
 
 typedef struct Heap{
-	int *ready;
+	double *ready;
 	int *pro;		//process (index)
 	int front;		//first free position
 	int size;
@@ -21,14 +21,14 @@ int isEmptyHeap(Heap h);
 
 void doubleHeapSize(Heap *hp);
 
-void swap(int *a, int *b);
+void swap(double *a, double *b);
 
 void upheap(Heap *hp, int i);
 
 void downheap(Heap *hp, int i);
 
-void enqueue(Heap *hp, int readyAt, int process);
+void enqueue(Heap *hp, double readyAt, int process);
 
-void removeMin(Heap *hp, int *minReady, int *minProcess);
+void removeMin(Heap *hp, double *minReady, int *minProcess);
 
 #endif

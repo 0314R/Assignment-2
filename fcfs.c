@@ -66,31 +66,34 @@ int returnMax(int a, int b)
 
 int main(int argc, char *argv[])
 {
-	int processCapability = DEFAULT_ARRAY_LENGTH, *startTimes, *finishTimes, *matrixRowIndexes, **timesMatrix;
+	int processCapability = DEFAULT_ARRAY_LENGTH, *matrixRowIndexes;
+	double *startTimes, *finishTimes, **timesMatrix;
 	char c;
 
-	timesMatrix = malloc(processCapability * sizeof(int *));
-	startTimes = malloc(processCapability * sizeof(int));
-	finishTimes = malloc(processCapability * sizeof(int));
+
+	timesMatrix = malloc(processCapability * sizeof(double *));
+	startTimes = malloc(processCapability * sizeof(double));
+	finishTimes = malloc(processCapability * sizeof(double));
 	matrixRowIndexes = malloc(processCapability * sizeof(int));
 
-	int ignoredPriority, newNumber, i = 0, j, arraySize;
+	int ignoredPriority, i = 0, j, arraySize;
+	double newNumber;
 
 	do
 	{
 		if (i == processCapability)
 		{
 			processCapability *= 2;
-			timesMatrix = realloc(timesMatrix, processCapability * sizeof(int *));
-			startTimes = realloc(startTimes, processCapability * sizeof(int));
-			finishTimes = realloc(finishTimes, processCapability * sizeof(int));
+			timesMatrix = realloc(timesMatrix, processCapability * sizeof(double *));
+			startTimes = realloc(startTimes, processCapability * sizeof(double));
+			finishTimes = realloc(finishTimes, processCapability * sizeof(double));
 			matrixRowIndexes = realloc(matrixRowIndexes, processCapability * sizeof(int));
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
-		timesMatrix[i] = malloc(arraySize * sizeof(int));
+		timesMatrix[i] = malloc(arraySize * sizeof(double));
 
-		scanf("%d %d", &startTimes[i], &ignoredPriority); // the second int is priority and therefore ignored here.
+		scanf("%lf %d", &startTimes[i], &ignoredPriority); // the second int is priority and therefore ignored here.
 		j = 0;
 
 		do
@@ -98,9 +101,9 @@ int main(int argc, char *argv[])
 			if (j == arraySize)
 			{
 				arraySize *= 2;
-				timesMatrix[i] = realloc(timesMatrix[i], arraySize * sizeof(int));
+				timesMatrix[i] = realloc(timesMatrix[i], arraySize * sizeof(double));
 			}
-			scanf("%d", &newNumber);
+			scanf("%lf", &newNumber);
 			timesMatrix[i][j] = newNumber;
 			j++;
 		} while (newNumber != -1);
@@ -133,7 +136,8 @@ int main(int argc, char *argv[])
 	}
 */
 	Heap h = makeHeap();
-	int readyAt, process, cpuBusyUntil=0, ioBusyUntil=0, ri;
+	double readyAt, cpuBusyUntil=0, ioBusyUntil=0;
+	int process, ri;
 
 	// Loop over process indexes pi, to enqueue pairs of (readyAt, pi) into the heap.
 	for (int pi = 0; pi < numberOfProcesses; pi++)
@@ -143,7 +147,7 @@ int main(int argc, char *argv[])
 		matrixRowIndexes[pi] = 0;
 	}
 
-	printArrays(h.ready, h.pro, h.front);
+	//printArrays(h.ready, h.pro, h.front);
 
 	while( !isEmptyHeap(h) ){
 		/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)
@@ -175,15 +179,15 @@ int main(int argc, char *argv[])
 		enqueue(&h, readyAt, process);
 	}
 
-	int sum = 0;
+	double sum = 0;
 	for (int i = 0; i < numberOfProcesses; i++)
 	{
 		sum += finishTimes[i] - startTimes[i];
-		printf("%d ", finishTimes[i]);
-		putchar('\n');
+		//printf("%d ", finishTimes[i]);
+		//putchar('\n');
 	}
 
-	printf("%d\n", sum / numberOfProcesses);
+	printf("%.0lf\n", sum / numberOfProcesses);
 
 /*
 
