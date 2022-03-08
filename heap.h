@@ -8,9 +8,10 @@
 
 int DEFAULT_ARRAY_LENGTH;
 
+// Heap indexes start from 1, not 0. This simplifies parent index calculation.
 typedef struct Heap{
 	double *ready;
-	int *pro;		//process (index)
+	int *pro;		//processes (indexes)
 	int front;		//first free position
 	int size;
 } Heap;

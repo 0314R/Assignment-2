@@ -60,16 +60,13 @@ int main(int argc, char *argv[])
 {
 	int processCapability = DEFAULT_ARRAY_LENGTH, *matrixRowIndexes;
 	double *startTimes, *finishTimes, **timesMatrix;
-	char c;
-
 
 	timesMatrix = malloc(processCapability * sizeof(double *));
 	startTimes = malloc(processCapability * sizeof(double));
-	finishTimes = malloc(processCapability * sizeof(double));
-	matrixRowIndexes = malloc(processCapability * sizeof(int));
 
 	int ignoredPriority, i = 0, j, arraySize;
 	double newNumber;
+	char c;
 
 	do
 	{
@@ -78,14 +75,11 @@ int main(int argc, char *argv[])
 			processCapability *= 2;
 			timesMatrix = realloc(timesMatrix, processCapability * sizeof(double *));
 			startTimes = realloc(startTimes, processCapability * sizeof(double));
-			finishTimes = realloc(finishTimes, processCapability * sizeof(double));
-			matrixRowIndexes = realloc(matrixRowIndexes, processCapability * sizeof(int));
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
 		timesMatrix[i] = malloc(arraySize * sizeof(double));
-
-		scanf("%lf %d", &startTimes[i], &ignoredPriority); // the second int is priority and therefore ignored here.
+		scanf("%lf %d", &startTimes[i], &ignoredPriority); // ignoredPriority is literally ignored
 		j = 0;
 
 		do
@@ -105,20 +99,18 @@ int main(int argc, char *argv[])
 		getchar(); // ignore the newline
 		c = getchar();
 		if (!isdigit(c))
-		{
 			break;
-		}
 		else
-		{
 			ungetc(c, stdin);
-		}
 
 	} while (1);
-	int numberOfProcesses = i;
 
 	Heap h = makeHeap();
 	double readyAt, cpuBusyUntil=0, ioBusyUntil=0;
-	int process, ri;
+	int process, ri, numberOfProcesses = i;
+
+	finishTimes = malloc(numberOfProcesses * sizeof(double));
+	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
 
 	// Loop over process indexes pi, to enqueue pairs of (readyAt, pi) into the heap.
 	for (int pi = 0; pi < numberOfProcesses; pi++)
@@ -135,16 +127,14 @@ int main(int argc, char *argv[])
 
 		//2
 		ri = matrixRowIndexes[process];
-		cpuBusyUntil = max(cpuBusyUntil, readyAt);		//this is before adding the current process' CPU time
-		cpuBusyUntil += timesMatrix[process][ri];   	//this is after adding the current process' CPU time
+		cpuBusyUntil = max(cpuBusyUntil, readyAt) + timesMatrix[process][ri];
 
 		//3
 		if( timesMatrix[process][ri+1] == -1){
 			finishTimes[process] = cpuBusyUntil;
 			continue;
 		}
-		ioBusyUntil = max(ioBusyUntil, cpuBusyUntil);	//this is before adding the current process' IO time.
-		ioBusyUntil += timesMatrix[process][ri+1];		//this is after adding the current process' IO time.
+		ioBusyUntil = max(ioBusyUntil, cpuBusyUntil) + timesMatrix[process][ri+1];		//this is after.
 
 		//4
 		if( timesMatrix[process][ri+2] == -1){
@@ -160,17 +150,14 @@ int main(int argc, char *argv[])
 
 	double sum = 0;
 	for (int i = 0; i < numberOfProcesses; i++)
-	{
 		sum += finishTimes[i] - startTimes[i];
-	}
-
 	printf("%.0lf\n", sum / numberOfProcesses);
 
-	freeMatrix(timesMatrix, numberOfProcesses);
 	free(startTimes);
 	free(finishTimes);
 	free(matrixRowIndexes);
 
+	freeMatrix(timesMatrix, numberOfProcesses);
 	free(h.ready);
 	free(h.pro);
 

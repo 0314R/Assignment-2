@@ -40,7 +40,6 @@ void swapInHeap(Heap *hp, int i, int j){
 	ti = hp->pro[i];
 	hp->pro[i] = hp->pro[j];
 	hp->pro[j] = ti;
-
 }
 
 void upheap(Heap *hp, int i){
