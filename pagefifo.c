@@ -2,19 +2,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-int min(int *arr, int len)
+int find(int *arr, int len, int page)
 {
-    int low = arr[0];
-    int idx = 0;
-    for (int i = 1; i < len; i++)
+    for (int i = 0; i < len; i++)
     {
-        if (low > arr[i])
-        {
-            low = arr[i];
-            idx = i;
-        }
+        if (arr[i] == page)
+            return i;
     }
-    return idx;
+    return -1;
 }
 
 int main(int argc, char *argv[])
@@ -24,17 +19,10 @@ int main(int argc, char *argv[])
 
     // arr keeps track of the content of the frames
     int *arr = (int *)malloc(frames * sizeof(int));
-    // times keeps track of when each frame was last changed
-    int *times = (int *)malloc(frames * sizeof(int));
 
-    // initialize such that all frames have a page
-    // #misses = #frames then
     for (int i = 0; i < frames; i++)
     {
-        // int x;
-        // scanf("%d", &x);
         arr[i] = 0;
-        times[i] = 0;
     }
     int misses = 0;
 
@@ -49,20 +37,17 @@ int main(int argc, char *argv[])
     {
         flag = 1;
         scanf("%d", &page);
-        if (arr[idx] != page)
+        if (find(arr, frames, page) == -1)
         {
             misses++;
             arr[idx] = page;
-            time++;
-            times[idx] = time;
-            idx = min(times, frames);
+            idx = (idx + 1) % frames;
         }
     }
 
     printf("%d\n", misses);
 
     free(arr);
-    free(times);
 
     return 0;
 }

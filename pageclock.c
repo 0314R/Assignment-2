@@ -20,19 +20,15 @@ int main(int argc, char *argv[])
     int *arr = (int *)malloc(frames * sizeof(int));
     int *rbit = (int *)malloc(frames * sizeof(int));
 
-    // char x = getchar(); // gets spaces and newlines
-
     for (int i = 0; i < frames; i++)
     {
-        //     int x;
-        //     scanf("%d", &x);
         arr[i] = 0;
         rbit[i] = 0;
     }
     int misses = 0;
 
     int page, idx = 0;
-    char c; // = getchar(); // ignore newline
+    char c;
     int flag = 0;
 
     while (((c = getchar()) != EOF && c != '\n') || (flag == 0))
