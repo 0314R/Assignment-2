@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
 
 
-	while( !isEmptyQueue(cpuQ1) || !isEmptyHeap(unstartedProcesses) ){
+	while( processUsingIO!=-1 || processUsingCPU1!=-1 || !isEmptyQueue(cpuQ1) || !isEmptyQueue(ioQ) || !isEmptyHeap(unstartedProcesses) ){
 		// 2 Handle new, incoming process.
 		if( !isEmptyHeap(unstartedProcesses) && (t >= getMin(unstartedProcesses) ) ){
 			removeMin(&unstartedProcesses, &readyAt, &priority, &process);
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
 			i = matrixRowIndexes[p];
 
 			processUsingIO = p;
-			ioBusyUntil = t + timesMatrix[i][p];
+			ioBusyUntil = t + timesMatrix[p][i];
 			matrixRowIndexes[p]++;
 
 			printf("[%d] (3.2) ioQ: ", t);
@@ -163,10 +163,11 @@ int main(int argc, char *argv[])
 			i = matrixRowIndexes[p];
 
 			processUsingCPU1 = p;
-			cpuBusyUntil = t + timesMatrix[i][p];
+			cpuBusyUntil = t + timesMatrix[p][i];
+			//printf("[%d] (4.2) timesMatrix[%d][%d] = %.0lf\n", t, p, i, timesMatrix[p][i]);
 			matrixRowIndexes[p]++;
 
-			printf("[%d] (4.2) cpuQ1: ", t);
+			printf("[%d] (4.2) cpuBusyUntil=%.0lf cpuQ1: ", t, cpuBusyUntil);
 			printQueue(cpuQ1);
 		}
 
