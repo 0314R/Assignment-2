@@ -33,7 +33,7 @@ void insert(Heap *hp, double readyAt, int priority, int process);
 
 double getMin(Heap h);
 
-void removeMin(Heap *hp, double *minReady, int *minProcess, int *minPriority);
+void removeMin(Heap *hp, double *minReady, int *minPriority, int *minProcess);
 
 void printHeap(Heap h);
 

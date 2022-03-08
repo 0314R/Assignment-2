@@ -1,6 +1,6 @@
 #include "queue.h"
 
-int DEFAULT_ARR_LEN = 1;
+int DEFAULT_ARR_LEN = 10;
 
 Queue newQueue(){
 	Queue q;

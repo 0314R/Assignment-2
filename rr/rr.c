@@ -100,13 +100,15 @@ int main(int argc, char *argv[])
 	int p, processUsingCPU1=-1, processUsingIO=-1, t=0;
 	double ioBusyUntil, cpuBusyUntil;
 
+
+
 	while( !isEmptyQueue(cpuQ1) || !isEmptyHeap(unstartedProcesses) ){
-		printf("t = %d\n", t);
 		// 2 Handle new, incoming process.
-		if( t >= getMin(unstartedProcesses)){
+		if( !isEmptyHeap(unstartedProcesses) && (t >= getMin(unstartedProcesses) ) ){
 			removeMin(&unstartedProcesses, &readyAt, &priority, &process);
+			printf("removed [%.0lf, %d, %d] from Heap\n", readyAt, priority, process);
 			enqueue(&cpuQ1, process);
-			printf("cpuQ1: ");
+			printf("[%d] (2) cpuQ1: ", t);
 			printQueue(cpuQ1);
 		}
 
@@ -120,11 +122,11 @@ int main(int argc, char *argv[])
 				finishTimes[p] = ioBusyUntil;
 			} else {
 				enqueue(&cpuQ1, p);
+				printf("[%d] (3.1) cpuQ1: ", t);
+				printQueue(cpuQ1);
 			}
 			processUsingIO = -1;
 
-			printf("ioQ: ");
-			printQueue(ioQ);
 		}
 		// 3.2 The IO can be used for a new process.
 		if( processUsingIO == -1 && !isEmptyQueue(ioQ)){
@@ -135,7 +137,7 @@ int main(int argc, char *argv[])
 			ioBusyUntil = t + timesMatrix[i][p];
 			matrixRowIndexes[p]++;
 
-			printf("ioQ: ");
+			printf("[%d] (3.2) ioQ: ", t);
 			printQueue(ioQ);
 		}
 
@@ -149,9 +151,11 @@ int main(int argc, char *argv[])
 				finishTimes[p] = cpuBusyUntil;
 			} else {
 				enqueue(&ioQ, p);
+				printf("[%d] (4.1) ioQ: ", t);
+				printQueue(ioQ);
 			}
-			printf("cpuQ1: ");
-			printQueue(cpuQ1);
+			processUsingCPU1 = -1;
+
 		}
 		// 4.2 The CPU can be used for a new process.
 		if( processUsingCPU1 == -1 && !isEmptyQueue(cpuQ1)){
@@ -162,7 +166,7 @@ int main(int argc, char *argv[])
 			cpuBusyUntil = t + timesMatrix[i][p];
 			matrixRowIndexes[p]++;
 
-			printf("cpuQ1: ");
+			printf("[%d] (4.2) cpuQ1: ", t);
 			printQueue(cpuQ1);
 		}
 

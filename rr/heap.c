@@ -96,7 +96,7 @@ double getMin(Heap h){
 	return h.ready[1];
 }
 
-void removeMin(Heap *hp, double *minReady, int *minProcess, int *minPriority){
+void removeMin(Heap *hp, double *minReady, int *minPriority, int *minProcess){
 	*minReady = hp->ready[1];
 	*minProcess = hp->process[1];
 	*minPriority = hp->priority[1];
