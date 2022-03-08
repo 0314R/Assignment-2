@@ -21,7 +21,7 @@ int isEmptyHeap(Heap h);
 
 void doubleHeapSize(Heap *hp);
 
-void swap(double *a, double *b);
+void swapInHeap(Heap *hp, int i, int j);
 
 void upheap(Heap *hp, int i);
 

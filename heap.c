@@ -29,16 +29,18 @@ void doubleHeapSize(Heap *hp){
 	assert(hp->pro != NULL);
 }
 
-void swapInt(int *a, int *b){
-	int temp = *a;
-	*a = *b;
-	*b = temp;
-}
+void swapInHeap(Heap *hp, int i, int j){
+	double td; 		// temporary double
+	int ti;			// temporary integer
 
-void swapDouble(double *a, double *b){
-	double temp = *a;
-	*a = *b;
-	*b = temp;
+	td = hp->ready[i];
+	hp->ready[i] = hp->ready[j];
+	hp->ready[j] = td;
+
+	ti = hp->pro[i];
+	hp->pro[i] = hp->pro[j];
+	hp->pro[j] = ti;
+
 }
 
 void upheap(Heap *hp, int i){
@@ -47,8 +49,7 @@ void upheap(Heap *hp, int i){
 
 	int pi = i/2; 			//pi index = index/2
 	if( hp->ready[i] < hp->ready[pi]){
-		swapDouble( &(hp->ready[i]), &(hp->ready[pi]) );
-		swapInt( &(hp->pro[i]), &(hp->pro[pi]) );
+		swapInHeap(hp, i, pi);
 		upheap(hp, pi);
 	}
 }
@@ -63,13 +64,11 @@ void downheap(Heap *hp, int i){
 		rci = lci;			// this simplifies code below
 
 	if( hp->ready[lci] < hp->ready[rci] && hp->ready[lci] < hp->ready[i]){
-		swapDouble( &(hp->ready[lci]), &(hp->ready[i]) );
-		swapInt( &(hp->pro[lci]), &(hp->pro[i]) );
+		swapInHeap(hp, i, lci);
 		downheap(hp, lci);
 	}
 	else if ( hp->ready[rci] < hp->ready[i] ){
-		swapDouble( &(hp->ready[rci]), &(hp->ready[i]) );
-		swapInt( &(hp->pro[rci]), &(hp->pro[i]) );
+		swapInHeap(hp, i, rci);
 		downheap(hp, rci);
 	}
 }
