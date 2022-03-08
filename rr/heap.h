@@ -29,8 +29,10 @@ void upheap(Heap *hp, int i);
 
 void downheap(Heap *hp, int i);
 
-void insert(Heap *hp, double readyAt, int process, int priority);
+void insert(Heap *hp, double readyAt, int priority, int process);
 
 void removeMin(Heap *hp, double *minReady, int *minProcess, int *minPriority);
+
+void printHeap(Heap h);
 
 #endif

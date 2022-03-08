@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
 
 	timesMatrix = malloc(processCapability * sizeof(double *));
 	startTimes = malloc(processCapability * sizeof(double));
+	priorities = malloc(processCapability * sizeof(int));
 
 	int i = 0, j, arraySize;
 	double newNumber;
@@ -74,14 +75,27 @@ int main(int argc, char *argv[])
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
 
-	// Loop over process indexes pi, to enqueue triples (ready, process, priority) into the heap.
+	// Loop over process indexes pi, to enqueue triples (ready, priority, process) into the heap.
 	for (int pi = 0; pi < numberOfProcesses; pi++)
 	{
 		readyAt  = startTimes[pi];
 		priority = priorities[pi];
-		insert(&unstartedProcesses, readyAt, pi, priority);
+		insert(&unstartedProcesses, readyAt, priority, pi);
 		matrixRowIndexes[pi] = 0;
 	}
+
+	printf("matrix:\n\n");
+	for(int r=0 ; r<numberOfProcesses ; r++){
+		int c=0;
+		do{
+			printf("%.0lf ", timesMatrix[r][c]);
+			c++;
+		} while (timesMatrix[r][c] != -1);
+		putchar('\n');
+	}
+	printf("heap: ");
+	printHeap(unstartedProcesses);
+
 	//
 	// while( !isEmptyHeap(h) ){
 	// 	/* 1. Read next ready process from list node [r, i] (=readyAt, processIndex)

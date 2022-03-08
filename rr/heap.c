@@ -79,7 +79,7 @@ void downheap(Heap *hp, int i){
 	}
 }
 
-void insert(Heap *hp, double readyAt, int process, int priority){
+void insert(Heap *hp, double readyAt, int priority, int process){
 	int fr = hp->front;
 	if( fr == hp->size -1 ){
 		doubleHeapSize(hp);
@@ -103,4 +103,10 @@ void removeMin(Heap *hp, double *minReady, int *minProcess, int *minPriority){
 	hp->priority[1]  = hp->priority[hp->front];
 
 	downheap(hp, 1);
+}
+
+void printHeap(Heap h){
+	for(int i=1 ; i<h.front ; i++)
+		printf("[%.0lf, %d, %d] ", h.ready[i], h.priority[i], h.process[i]);
+	putchar('\n');
 }
