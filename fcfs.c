@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	timesMatrix = malloc(processCapability * sizeof(double *));
 	startTimes = malloc(processCapability * sizeof(double));
 
-	int ignoredPriority, i = 0, j, arraySize;
+	int i = 0, j, arraySize;
 	double newNumber;
 	char c;
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
 		timesMatrix[i] = malloc(arraySize * sizeof(double));
-		scanf("%lf %d", &startTimes[i], &ignoredPriority); // ignoredPriority is literally ignored
+		scanf("%lf %*d", &startTimes[i]); // priority is unneeded for fcfs, so we scan but ignore it.
 		j = 0;
 
 		do
