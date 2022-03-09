@@ -28,6 +28,11 @@ Queue newQueue();
 TripleQueue newTQueue();
 QueueSet newQueueSet();
 
+
+void freeQueue(Queue q);
+void freeTripleQueue(TripleQueue tq);
+void freeQueueSet(QueueSet set);
+
 int isEmptyQueue(Queue q);
 int isEmptyTQueue(TripleQueue q);
 int isEmptyQueueSet(QueueSet qs);

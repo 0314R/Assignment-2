@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 	int p, processUsingCPU=-1, processUsingIO=-1, t=0;
 	double ioBusyUntil, cpuBusyUntil;
 
-
+	// The commented steps below correspond to those of the pdf, but since we do the pdf's step 1 at the end, it starts with 2 here.
 	while( processUsingIO!=-1 || processUsingCPU!=-1 || !isEmptyQueueSet(cpuQs) || !isEmptyQueue(ioQ) || !isEmptyTQueue(unstartedProcesses) ){
 		// 2 Handle new, incoming process.
 		while( !isEmptyTQueue(unstartedProcesses) && (t >= nextReadyAt(unstartedProcesses) ) ){
@@ -158,7 +158,6 @@ int main(int argc, char *argv[])
 
 			}
 			// 5 Since t >= cpuBusyUntil but the process is not done, we know the process was pre-emptively stopped because the quantum ended.
-
 			else {
 				p = processUsingCPU;
 				priority = priorities[p];
@@ -202,6 +201,13 @@ int main(int argc, char *argv[])
 		sum += finishTimes[p] - startTimes[p];
 	}
 	printf("%.0lf\n", sum / (double)numberOfProcesses);
+
+	free(matrixRowIndexes); free(priorities); free(startTimes); free(finishTimes); free(ages);
+	freeMatrix(timesMatrix, numberOfProcesses);
+	free(ioQ.arr);
+	freeQueueSet(cpuQs);
+	//freeTripleQueue(unstartedProcesses);
+
 
 	return 0;
 }

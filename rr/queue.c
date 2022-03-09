@@ -38,6 +38,23 @@ QueueSet newQueueSet(){
 	return qs;
 }
 
+void freeQueue(Queue q){
+	free(q.arr);
+}
+
+void freeTripleQueue(TripleQueue tq){
+	free(tq.ready);
+	free(tq.priority);
+	free(tq.process);
+}
+
+void freeQueueSet(QueueSet set){
+	for(int lvl=1 ; lvl<=3 ; lvl++)
+		freeQueue(set[lvl]);
+
+	free(set);
+}
+
 int isEmptyQueue(Queue q){
 	return q.back == q.front;
 }
