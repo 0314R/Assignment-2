@@ -34,11 +34,12 @@ int QUANTUM_LENGTH = 10;
 int main(int argc, char *argv[])
 {
 	int *matrixRowIndexes, *priorities, processCapability = DEFAULT_ARRAY_LENGTH;
-	double *startTimes, *finishTimes, **timesMatrix;
+	double *startTimes, *finishTimes, *ages, **timesMatrix;
 
-	timesMatrix = malloc(processCapability * sizeof(double *));
-	startTimes = malloc(processCapability * sizeof(double));
-	priorities = malloc(processCapability * sizeof(int));
+	timesMatrix = 	malloc(processCapability * sizeof(double *));
+	startTimes = 	malloc(processCapability * sizeof(double));
+	ages = 			malloc(processCapability * sizeof(double));
+	priorities = 	malloc(processCapability * sizeof(int));
 
 	int i = 0, j, arraySize;
 	double newNumber;
@@ -50,8 +51,9 @@ int main(int argc, char *argv[])
 		{
 			processCapability *= 2;
 			timesMatrix = realloc(timesMatrix, processCapability * sizeof(double *));
-			startTimes = realloc(startTimes, processCapability * sizeof(double));
-			priorities = realloc(priorities, processCapability * sizeof(int));
+			startTimes =  realloc(startTimes, processCapability * sizeof(double));
+			ages = 		  realloc(ages, processCapability * sizeof(double));
+			priorities =  realloc(priorities, processCapability * sizeof(int));
 		}
 
 		arraySize = DEFAULT_ARRAY_LENGTH;
@@ -90,13 +92,19 @@ int main(int argc, char *argv[])
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
 
-	// Loop over process indexes pi, to enqueue triples (ready, priority, process) into the heap.
+	// Loop over process indexes pi, to enqueue triples (ready, priority, process) into the TripleQueue.
 	for (int pi = 0; pi < numberOfProcesses; pi++)
 	{
 		readyAt  = startTimes[pi];
 		priority = priorities[pi];
+
 		enqueueT(&unstartedProcesses, readyAt, priority, pi);
 		matrixRowIndexes[pi] = 0;
+	}
+
+	// Set all ages to 0.
+	for( int pi=0 ; pi < numberOfProcesses ; pi++){
+		ages[pi] = 0;
 	}
 
 	printMatrix(timesMatrix, numberOfProcesses);
@@ -209,6 +217,26 @@ int main(int argc, char *argv[])
 			printf("[%d]        cpuBusyUntil=%.0lf cpuQ%d:\n", t, cpuBusyUntil, priority);
 			printQueue(cpuQs[priority]);
 		}
+
+		// 7 Age waiting processes
+		ages[processUsingIO]++;
+		i = cpuQs[2].front;
+		while(i != cpuQs[2].back){
+			process = cpuQs[2].arr[i];
+			ages[process]++;
+			i = (i+1) % cpuQs[2].size;
+		}
+		i = cpuQs[3].front;
+		while(i != cpuQs[3].back){
+			process = cpuQs[3].arr[i];
+			ages[process]++;
+			i = (i+1) % cpuQs[3].size;
+		}
+		printf("ages: ");
+		for(i=0 ; i<numberOfProcesses ; i++){
+			printf("%.0lf ", ages[i]);
+		}
+		putchar('\n');
 
 		t++;
 	}
