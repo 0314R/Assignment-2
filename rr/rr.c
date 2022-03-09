@@ -17,9 +17,11 @@ void freeMatrix(double **matrix, int rows){
 	free(matrix);
 }
 
+int QUANTUM_LENGTH = 10;
+
 int main(int argc, char *argv[])
 {
-	int processCapability = DEFAULT_ARRAY_LENGTH, *matrixRowIndexes, *priorities;
+	int *matrixRowIndexes, *priorities, processCapability = DEFAULT_ARRAY_LENGTH;
 	double *startTimes, *finishTimes, **timesMatrix;
 
 	timesMatrix = malloc(processCapability * sizeof(double *));
@@ -70,7 +72,7 @@ int main(int argc, char *argv[])
 
 	Heap unstartedProcesses = makeHeap();
 	double readyAt;
-	int process, priority, numberOfProcesses = i;
+	int process, priority, numberOfProcesses = i, quantumRemainder = QUANTUM_LENGTH;
 
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
@@ -108,7 +110,7 @@ int main(int argc, char *argv[])
 			removeMin(&unstartedProcesses, &readyAt, &priority, &process);
 			printf("removed [%.0lf, %d, %d] from Heap\n", readyAt, priority, process);
 			enqueue(&cpuQ1, process);
-			printf("[%d] (2) cpuQ1: ", t);
+			printf("[%d] (new) cpuQ1: ", t);
 			printQueue(cpuQ1);
 		}
 
@@ -122,7 +124,7 @@ int main(int argc, char *argv[])
 				finishTimes[p] = ioBusyUntil;
 			} else {
 				enqueue(&cpuQ1, p);
-				printf("[%d] (3.1) cpuQ1: ", t);
+				printf("[%d] (fIO) cpuQ1: ", t);
 				printQueue(cpuQ1);
 			}
 			processUsingIO = -1;
@@ -137,37 +139,55 @@ int main(int argc, char *argv[])
 			ioBusyUntil = t + timesMatrix[p][i];
 			matrixRowIndexes[p]++;
 
-			printf("[%d] (3.2) ioQ: ", t);
+			printf("[%d] (sIO) ioQ: ", t);
 			printQueue(ioQ);
 		}
 
-		// 4.1 Handle processes finishing a CPU task.
+		// 4 or 5, depending.
 		if( (processUsingCPU1 != -1) && (t >= cpuBusyUntil) ){
 			p = processUsingCPU1;
 			i = matrixRowIndexes[p];
 
-			// If the process has no more IO need, it is finished. Else it gets in the IO queue.
-			if( timesMatrix[p][i] == -1){
-				finishTimes[p] = cpuBusyUntil;
-			} else {
-				enqueue(&ioQ, p);
-				printf("[%d] (4.1) ioQ: ", t);
-				printQueue(ioQ);
+			// 4 Handle processes finishing a CPU task
+			if( timesMatrix[p][i] == 0 ){
+				// If the process has no more IO need, it is finished. Else it gets in the IO queue.
+				if( timesMatrix[p][i] == -1){
+					finishTimes[p] = cpuBusyUntil;
+				} else {
+					enqueue(&ioQ, p);
+					printf("[%d] (fCPU) ioQ: ", t);
+					printQueue(ioQ);
+				}
+				processUsingCPU1 = -1;
 			}
-			processUsingCPU1 = -1;
-
+			// 5 Since t >= cpuBusyUntil but the process is not done, we know the process was pre-emptively stopped because the quantum ended.
+			else {
+				p = processUsingCPU1;
+				enqueue(&cpuQ1, p);
+				printf("[%d] (fQT) ioQ: ", t);
+				printQueue(ioQ);
+				processUsingCPU1 = -1;
+			}
 		}
-		// 4.2 The CPU can be used for a new process.
+
+
+		// 6 The CPU can be used for a new process; a new quantum is started.
 		if( processUsingCPU1 == -1 && !isEmptyQueue(cpuQ1)){
 			p = dequeue(&cpuQ1);
 			i = matrixRowIndexes[p];
 
 			processUsingCPU1 = p;
-			cpuBusyUntil = t + timesMatrix[p][i];
-			//printf("[%d] (4.2) timesMatrix[%d][%d] = %.0lf\n", t, p, i, timesMatrix[p][i]);
-			matrixRowIndexes[p]++;
+			if(timesMatrix[p][i] <= QUANTUM_LENGTH){
+				quantumRemainder = timesMatrix[p][i];
+				timesMatrix[p][i] = 0;			//When the quantum finishes, we can look at this to say the process is done with CPU.
+			} else {
+				quantumRemainder = QUANTUM_LENGTH;
+				timesMatrix[p][i] -= QUANTUM_LENGTH;
+			}
+			cpuBusyUntil = t + quantumRemainder;
 
-			printf("[%d] (4.2) cpuBusyUntil=%.0lf cpuQ1: ", t, cpuBusyUntil);
+			printf("[%d] (sCPU) timesMatrix[%d][%d] = %.0lf\n", t, p, i, timesMatrix[p][i]);
+			printf("[%d] (sCPU) cpuBusyUntil=%.0lf cpuQ1: ", t, cpuBusyUntil);
 			printQueue(cpuQ1);
 		}
 
