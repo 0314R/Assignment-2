@@ -46,6 +46,8 @@ double nextReadyAt(TripleQueue q);
 
 void removeFromQueue(Queue *qp, int index);
 
+void age(QueueSet cpuQs, double *ages, int *priorities, int lvl);
+
 void printQueue(Queue q);
 void printTQueue(TripleQueue q);
 void printQueueSet(QueueSet set);

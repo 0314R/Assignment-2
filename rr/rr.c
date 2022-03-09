@@ -187,36 +187,8 @@ int main(int argc, char *argv[])
 		}
 
 		// 7 Age waiting processes and 8 (=1 in the lab pdf) Promote waiting processes to higher priority.
-		i = cpuQs[2].front;
-		while(i != cpuQs[2].back){
-			process = cpuQs[2].arr[i];
-			ages[process]++;
-
-			if(ages[process] > 100){
-				ages[process] = 0;
-				removeFromQueue(&cpuQs[2], i);
-				enqueue(&cpuQs[1], process);
-				priorities[process] = 1;
-			} else {
-				// Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increased i after the if-block.
-				i = (i+1) % cpuQs[2].size;
-			}
-		}
-		i = cpuQs[3].front;
-		while(i != cpuQs[3].back){
-			process = cpuQs[3].arr[i];
-			ages[process]++;
-
-			if(ages[process] > 100){
-				ages[process] = 0;
-				removeFromQueue(&cpuQs[3], i);
-				enqueue(&cpuQs[2], process);
-				priorities[process] = 2;
-			} else {
-				// Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increased i after the if-block.
-				i = (i+1) % cpuQs[3].size;
-			}
-		}
+		age(cpuQs, ages, priorities, 2);
+		age(cpuQs, ages, priorities, 3);
 
 		t++;
 	}

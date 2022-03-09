@@ -150,6 +150,24 @@ void removeFromQueue(Queue *qp, int index){
 	qp->back = (qp->back == 0 ? qp->size-1 : qp->back-1);
 }
 
+void age(QueueSet cpuQs, double *ages, int *priorities, int lvl){
+	int process, i = cpuQs[lvl].front;
+	while(i != cpuQs[lvl].back){
+		process = cpuQs[lvl].arr[i];
+		ages[process]++;
+
+		if(ages[process] > 100){
+			ages[process] = 0;
+			removeFromQueue(&cpuQs[lvl], i);
+			enqueue(&cpuQs[lvl-1], process);
+			priorities[process] = lvl-1;
+		} else {
+			// Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increased i after the if-block.
+			i = (i+1) % cpuQs[lvl].size;
+		}
+	}
+}
+
 void printQueue(Queue q){
 	int i = q.front;
 	putchar('[');
