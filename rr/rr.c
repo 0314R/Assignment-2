@@ -9,18 +9,6 @@ int max(int x, int y){
 	return (x > y? x : y);
 }
 
-void printMatrix(double **matrix, int rows){
-	printf("matrix:\n");
-	for(int r=0 ; r<rows ; r++){
-		int c=0;
-		do{
-			printf("%.0lf ", matrix[r][c]);
-			c++;
-		} while (matrix[r][c] != -1);
-		putchar('\n');
-	}
-}
-
 void freeMatrix(double **matrix, int rows){
 	for(int i=0 ; i<rows ; i++){
 		free(matrix[i]);
@@ -106,10 +94,6 @@ int main(int argc, char *argv[])
 		ages[pi] = 0;
 	}
 
-	// printMatrix(timesMatrix, numberOfProcesses);
-	// printf("unstarted: ");
-	// printTQueue(unstartedProcesses);
-
 	Queue ioQ = newQueue();
 	QueueSet cpuQs = newQueueSet();
 	int p, processUsingCPU=-1, processUsingIO=-1, t=0;
@@ -120,10 +104,7 @@ int main(int argc, char *argv[])
 		// 2 Handle new, incoming process.
 		while( !isEmptyTQueue(unstartedProcesses) && (t >= nextReadyAt(unstartedProcesses) ) ){
 			dequeueT(&unstartedProcesses, &readyAt, &priority, &process);
-			// printf("removed [%.0lf, %d, %d] from Heap\n", readyAt, priority, process);
 			enqueue(&cpuQs[priority], process);
-			//printf("[%d] (new) cpuQ%d: ", t, priority);
-			//printQueue(cpuQs[priority]);
 		}
 
 		// 3.1 Handle processes finishing an IO task.
@@ -137,8 +118,6 @@ int main(int argc, char *argv[])
 			} else {
 				priority = priorities[p];
 				enqueue(&cpuQs[priority], p);
-				//printf("[%d] (fIO) cpuQ%d: ", t, priority);
-				//printQueue(cpuQs[priority]);
 			}
 			processUsingIO = -1;
 
@@ -151,9 +130,6 @@ int main(int argc, char *argv[])
 			processUsingIO = p;
 			ioBusyUntil = t + timesMatrix[p][i];
 			matrixRowIndexes[p]++;
-
-			//printf("[%d] (sIO) ioBusyUntil: %.0lf ioQ: ", t, ioBusyUntil);
-			//printQueue(ioQ);
 		}
 
 		// 4 or 5, depending.
@@ -166,13 +142,12 @@ int main(int argc, char *argv[])
 				matrixRowIndexes[p]++;
 				i = matrixRowIndexes[p];
 				processUsingCPU = -1;
+
 				// If the process has no more IO need, it is finished. Else it gets in the IO queue.
 				if( timesMatrix[p][i] == -1){
 					finishTimes[p] = cpuBusyUntil;
 				} else {
 					enqueue(&ioQ, p);
-					//printf("[%d] (fCPU) ioQ: ", t);
-					//printQueue(ioQ);
 					/* Redo loop iteration without updating t, so that if the IO is available, process p uses it now at time t instead of t+1.
 					   So instead of doing step 6 this iteration, it is done in the next iteration, after step 3.2.*/
 					continue;
@@ -186,8 +161,6 @@ int main(int argc, char *argv[])
 				priority = priorities[p];
 
 				enqueue(&cpuQs[priority], p);
-				//printf("[%d] (fQT) cpuQ%d: ", t, priority);
-				//printQueue(cpuQs[priority]);
 				processUsingCPU = -1;
 			}
 		}
@@ -211,13 +184,9 @@ int main(int argc, char *argv[])
 				timesMatrix[p][i] -= QUANTUM_LENGTH;
 			}
 			cpuBusyUntil = t + quantumRemainder;
-
-			// printf("[%d] (sCPU) timesMatrix[%d][%d] = %.0lf\n", t, p, i, timesMatrix[p][i]);
-			// printf("[%d]        cpuBusyUntil=%.0lf cpuQ%d: ", t, cpuBusyUntil, priority);
-			// printQueue(cpuQs[priority]);
 		}
 
-		// 7 Age waiting processes ; 8=1 Promote waiting processes to higher priority.
+		// 7 Age waiting processes and 8 (=1 in the lab pdf) Promote waiting processes to higher priority.
 		i = cpuQs[2].front;
 		while(i != cpuQs[2].back){
 			process = cpuQs[2].arr[i];
@@ -225,67 +194,38 @@ int main(int argc, char *argv[])
 
 			if(ages[process] > 100){
 				ages[process] = 0;
-				//printf("[%d] (lvl+) i=%d cpuQ2: ", t, i);
-				//printQueue(cpuQs[2]);
 				removeFromQueue(&cpuQs[2], i);
-				//printf("[%d]        cpuQ2: ", t);
-				//printQueue(cpuQs[2]);
 				enqueue(&cpuQs[1], process);
 				priorities[process] = 1;
-				//printf("[%d]        cpuQ1: ", t);
-				//printQueue(cpuQs[1]);
-				//because of the back of the queue moving to the left after removal, need to check guard again
-				// if(i == cpuQs[2].back)
-				// 	break;
-			} else { // Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increase i after the if-block.
+			} else {
+				// Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increased i after the if-block.
 				i = (i+1) % cpuQs[2].size;
 			}
 		}
 		i = cpuQs[3].front;
-		// printf("i = cpuQs[3].front = %d============================================\n", cpuQs[3].front);
-		// printQueue(cpuQs[3]);
 		while(i != cpuQs[3].back){
-			//printf("i = %d, cpuQs[3].back = %d\n", i, cpuQs[3].back);
 			process = cpuQs[3].arr[i];
 			ages[process]++;
 
 			if(ages[process] > 100){
 				ages[process] = 0;
-				//printf("[%d] (lvl+) cpuQ3: ", t);
-				//printQueue(cpuQs[3]);
 				removeFromQueue(&cpuQs[3], i);
-				//printf("after removal, i=%d, back=%d\n", i, cpuQs[3].back);/////////////
-				//printf("[%d]        cpuQ3: ", t);
-				//printQueue(cpuQs[3]);
 				enqueue(&cpuQs[2], process);
 				priorities[process] = 2;
-				// printf("[%d]        cpuQ2: ", t);
-				// printQueue(cpuQs[2]);
-				//because of the back of the queue moving to the left after removal, need to check guard again
-				// if(i == cpuQs[3].back)
-				// 	break;
-			} else { // Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increase i after the if-block.
+			} else {
+				// Because in the if-block removeFromQueue moves index i+1 to i, we would skip the old i+1 if we increased i after the if-block.
 				i = (i+1) % cpuQs[3].size;
 			}
 		}
 
-		//printf("[%d] ages: ", t);
-		for(i=0 ; i<numberOfProcesses ; i++){
-			//printf("%.0lf ", ages[i]);
-		}
-		//putchar('\n');
-
 		t++;
 	}
 
+	//Compute the final answer
 	double sum=0;
-	//printf("finishTimes: ");
 	for(p=0 ; p<numberOfProcesses ; p++){
-		//printf("%.0lf ", finishTimes[p]);
 		sum += finishTimes[p] - startTimes[p];
 	}
-	//putchar('\n');
-
 	printf("%.0lf\n", sum / (double)numberOfProcesses);
 
 	return 0;

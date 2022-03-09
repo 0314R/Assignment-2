@@ -128,7 +128,6 @@ int dequeueSet(QueueSet set){
 	while(isEmptyQueue(set[priority]))
 		priority++;
 
-	//printf("dequeued from priority %d\n", priority);
 	return dequeue(&set[priority]);
 }
 
@@ -141,10 +140,8 @@ double nextReadyAt(TripleQueue q){
 
 void removeFromQueue(Queue *qp, int index){
 	//Shift all elements one to the left from index to back
-	// printf("trying to remove index %d from this queue: ", index);
-	// printQueue(*qp);
 	int nextIndex = (index+1) % qp->size;
-	//printf("nextIndex: %d, size=%d, 4%%4==%d\n", nextIndex, qp->size, 4%4);
+
 	while( nextIndex != qp->back ){
 		qp->arr[index] = qp->arr[nextIndex];
 		index = nextIndex;
@@ -162,16 +159,6 @@ void printQueue(Queue q){
 		i = (i+1) % q.size;
 	}
 	printf("]\n");
-	//printf("[%d] = [%d] = q.back, q.size=%d\n", i, q.back, q.size);
-	// if(isEmptyQueue(q))
-	// 	printf("(empty) ");
-	//
-	// for(int i=0 ; i<q.size ; i++){
-	// 	if(i==q.front) putchar('[');
-	// 	if(i==q.back) putchar(']');
-	// 	printf("%d ", q.arr[i]);
-	// }
-	// putchar('\n');
 }
 
 void printTQueue(TripleQueue q){
