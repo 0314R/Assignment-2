@@ -30,7 +30,7 @@ QueueSet newQueueSet();
 
 
 void freeQueue(Queue q);
-void freeTripleQueue(TripleQueue tq);
+void freeTQueue(TripleQueue *tqp);
 void freeQueueSet(QueueSet set);
 
 int isEmptyQueue(Queue q);

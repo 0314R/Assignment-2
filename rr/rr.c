@@ -203,11 +203,7 @@ int main(int argc, char *argv[])
 	printf("%.0lf\n", sum / (double)numberOfProcesses);
 
 	free(matrixRowIndexes); free(priorities); free(startTimes); free(finishTimes); free(ages);
-	freeMatrix(timesMatrix, numberOfProcesses);
-	free(ioQ.arr);
-	freeQueueSet(cpuQs);
-	//freeTripleQueue(unstartedProcesses);
-
+	freeMatrix(timesMatrix, numberOfProcesses); free(ioQ.arr); freeQueueSet(cpuQs); freeTQueue(&unstartedProcesses);
 
 	return 0;
 }

@@ -42,10 +42,10 @@ void freeQueue(Queue q){
 	free(q.arr);
 }
 
-void freeTripleQueue(TripleQueue tq){
-	free(tq.ready);
-	free(tq.priority);
-	free(tq.process);
+void freeTQueue(TripleQueue *tqp){
+	free(tqp->ready);
+	free(tqp->priority);
+	free(tqp->process);
 }
 
 void freeQueueSet(QueueSet set){
