@@ -155,12 +155,14 @@ void removeFromQueue(Queue *qp, int index){
 
 void printQueue(Queue q){
 	int i = q.front;
-	printf("[%d] ", i);
+	putchar('[');
+	//printf("[%d] ", i);
 	while(i != q.back){
 		printf("%d ", q.arr[i]);
 		i = (i+1) % q.size;
 	}
-	printf("[%d] = [%d] = q.back, q.size=%d\n", i, q.back, q.size);
+	printf("]\n");
+	//printf("[%d] = [%d] = q.back, q.size=%d\n", i, q.back, q.size);
 	// if(isEmptyQueue(q))
 	// 	printf("(empty) ");
 	//
