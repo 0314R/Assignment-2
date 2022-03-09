@@ -141,14 +141,14 @@ double nextReadyAt(TripleQueue q){
 
 void removeFromQueue(Queue *qp, int index){
 	//Shift all elements one to the left from index to back
-	printf("trying to remove index %d from this queue: ", index);
-	printQueue(*qp);
+	// printf("trying to remove index %d from this queue: ", index);
+	// printQueue(*qp);
 	int nextIndex = (index+1) % qp->size;
-	printf("nextIndex: %d, size=%d, 4%%4==%d\n", nextIndex, qp->size, 4%4);
+	//printf("nextIndex: %d, size=%d, 4%%4==%d\n", nextIndex, qp->size, 4%4);
 	while( nextIndex != qp->back ){
 		qp->arr[index] = qp->arr[nextIndex];
 		index = nextIndex;
-		nextIndex = index+1 % qp->size;
+		nextIndex = (index+1) % qp->size;
 	}
 	qp->back = (qp->back == 0 ? qp->size-1 : qp->back-1);
 }
