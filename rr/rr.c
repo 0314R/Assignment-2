@@ -201,8 +201,11 @@ int main(int argc, char *argv[])
 		if( processUsingCPU == -1 && !isEmptyQueueSet(cpuQs)){
 			p = dequeueSet(cpuQs);
 			i = matrixRowIndexes[p];
-			priority = priorities[p];
 			processUsingCPU = p;
+
+			priority = priorities[p];
+			if(priority >1 ) //reset the age
+				ages[process] = 0;
 
 			if(timesMatrix[p][i] <= QUANTUM_LENGTH){
 				quantumRemainder = timesMatrix[p][i];
@@ -219,7 +222,6 @@ int main(int argc, char *argv[])
 		}
 
 		// 7 Age waiting processes
-		ages[processUsingIO]++;
 		i = cpuQs[2].front;
 		while(i != cpuQs[2].back){
 			process = cpuQs[2].arr[i];
@@ -232,6 +234,13 @@ int main(int argc, char *argv[])
 			ages[process]++;
 			i = (i+1) % cpuQs[3].size;
 		}
+		// ages[processUsingIO]++;
+		// i = ioQ.front;
+		// while(i != ioQ.back){
+		// 	process = ioQ.arr[i];
+		// 	ages[process]++;
+		// 	i = (i+1) % ioQ.size;
+		// }
 		printf("ages: ");
 		for(i=0 ; i<numberOfProcesses ; i++){
 			printf("%.0lf ", ages[i]);
