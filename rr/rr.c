@@ -10,6 +10,18 @@ int max(int x, int y){
 	return (x > y? x : y);
 }
 
+void printMatrix(double **matrix, int rows){
+	printf("matrix:\n");
+	for(int r=0 ; r<rows ; r++){
+		int c=0;
+		do{
+			printf("%.0lf ", matrix[r][c]);
+			c++;
+		} while (matrix[r][c] != -1);
+		putchar('\n');
+	}
+}
+
 void freeMatrix(double **matrix, int rows){
 	for(int i=0 ; i<rows ; i++){
 		free(matrix[i]);
@@ -86,15 +98,7 @@ int main(int argc, char *argv[])
 		matrixRowIndexes[pi] = 0;
 	}
 
-	printf("matrix:\n\n");
-	for(int r=0 ; r<numberOfProcesses ; r++){
-		int c=0;
-		do{
-			printf("%.0lf ", timesMatrix[r][c]);
-			c++;
-		} while (timesMatrix[r][c] != -1);
-		putchar('\n');
-	}
+	printMatrix(timesMatrix, numberOfProcesses);
 	printf("heap: ");
 	printHeap(unstartedProcesses);
 
@@ -139,7 +143,7 @@ int main(int argc, char *argv[])
 			ioBusyUntil = t + timesMatrix[p][i];
 			matrixRowIndexes[p]++;
 
-			printf("[%d] (sIO) ioQ: ", t);
+			printf("[%d] (sIO) ioBusyUntil: %.0lf ioQ: ", t, ioBusyUntil);
 			printQueue(ioQ);
 		}
 
@@ -164,8 +168,8 @@ int main(int argc, char *argv[])
 			else {
 				p = processUsingCPU1;
 				enqueue(&cpuQ1, p);
-				printf("[%d] (fQT) ioQ: ", t);
-				printQueue(ioQ);
+				printf("[%d] (fQT) cpuQ1: ", t);
+				printQueue(cpuQ1);
 				processUsingCPU1 = -1;
 			}
 		}
@@ -187,7 +191,7 @@ int main(int argc, char *argv[])
 			cpuBusyUntil = t + quantumRemainder;
 
 			printf("[%d] (sCPU) timesMatrix[%d][%d] = %.0lf\n", t, p, i, timesMatrix[p][i]);
-			printf("[%d] (sCPU) cpuBusyUntil=%.0lf cpuQ1: ", t, cpuBusyUntil);
+			printf("[%d]        cpuBusyUntil=%.0lf cpuQ1: ", t, cpuBusyUntil);
 			printQueue(cpuQ1);
 		}
 
