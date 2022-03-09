@@ -9,6 +9,17 @@ int max(int x, int y){
 	return (x > y? x : y);
 }
 
+int reachedEOF(){
+	getchar(); // ignore the newline
+	char c = getchar();
+	if (!isdigit(c))
+		return 1;
+
+	//else put the character back.
+	ungetc(c, stdin);
+	return 0;
+}
+
 void freeMatrix(double **matrix, int rows){
 	for(int i=0 ; i<rows ; i++){
 		free(matrix[i]);
@@ -20,18 +31,14 @@ int QUANTUM_LENGTH = 10;
 
 int main(int argc, char *argv[])
 {
-	int *matrixRowIndexes, *priorities, processCapability = DEFAULT_ARR_LEN;
-	double *startTimes, *finishTimes, *ages, **timesMatrix;
+	int i=0, j, arraySize, *matrixRowIndexes, *priorities, processCapability = DEFAULT_ARR_LEN;
+	double newNumber, *startTimes, *finishTimes, *ages, **timesMatrix;
 
 	timesMatrix = 	malloc(processCapability * sizeof(double *));
 	startTimes = 	malloc(processCapability * sizeof(double));
-	ages = 			malloc(processCapability * sizeof(double));
 	priorities = 	malloc(processCapability * sizeof(int));
 
-	int i = 0, j, arraySize;
-	double newNumber;
-	char c;
-
+	// Read inputs into timesMatrix
 	do
 	{
 		if (i == processCapability)
@@ -39,15 +46,15 @@ int main(int argc, char *argv[])
 			processCapability *= 2;
 			timesMatrix = realloc(timesMatrix, processCapability * sizeof(double *));
 			startTimes =  realloc(startTimes, processCapability * sizeof(double));
-			ages = 		  realloc(ages, processCapability * sizeof(double));
 			priorities =  realloc(priorities, processCapability * sizeof(int));
 		}
 
+		//Each process has an array (row) in the matrix which contains its CPU and IO times from the input, plus the final -1.
 		arraySize = DEFAULT_ARR_LEN;
 		timesMatrix[i] = malloc(arraySize * sizeof(double));
+
 		scanf("%lf %d", &startTimes[i], &priorities[i]);
 		j = 0;
-
 		do
 		{
 			if (j == arraySize)
@@ -62,12 +69,7 @@ int main(int argc, char *argv[])
 		i++;
 
 		// Now, at the end of the line after -1, check for EOF
-		getchar(); // ignore the newline
-		c = getchar();
-		if (!isdigit(c))
-			break;
-		else
-			ungetc(c, stdin);
+		if(reachedEOF()) break;
 
 	} while (1);
 
@@ -77,6 +79,7 @@ int main(int argc, char *argv[])
 	int process, priority, numberOfProcesses = i;
 
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
+	ages = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
 
 	// Loop over process indexes pi, to enqueue triples (ready, priority, process) into the TripleQueue.
