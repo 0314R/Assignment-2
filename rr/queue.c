@@ -128,7 +128,7 @@ int dequeueSet(QueueSet set){
 	while(isEmptyQueue(set[priority]))
 		priority++;
 
-	printf("dequeued from priority %d\n", priority);
+	//printf("dequeued from priority %d\n", priority);
 	return dequeue(&set[priority]);
 }
 
