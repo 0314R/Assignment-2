@@ -29,7 +29,7 @@ void freeMatrix(double **matrix, int rows){
 	free(matrix);
 }
 
-int QUANTUM_LENGTH = 10;
+int QUANTUM_LENGTH = 4;
 
 int main(int argc, char *argv[])
 {
@@ -82,7 +82,8 @@ int main(int argc, char *argv[])
 
 	} while (1);
 
-	Heap unstartedProcesses = makeHeap();
+	// It is a given that new processes arrive in the correct order, so no need for an ordered data structure, just a queue (with 3 fields).
+	TripleQueue unstartedProcesses = newTQueue();
 	double readyAt;
 	int process, priority, numberOfProcesses = i, quantumRemainder = QUANTUM_LENGTH;
 
@@ -94,13 +95,13 @@ int main(int argc, char *argv[])
 	{
 		readyAt  = startTimes[pi];
 		priority = priorities[pi];
-		insert(&unstartedProcesses, readyAt, priority, pi);
+		enqueueT(&unstartedProcesses, readyAt, priority, pi);
 		matrixRowIndexes[pi] = 0;
 	}
 
 	printMatrix(timesMatrix, numberOfProcesses);
-	printf("heap: ");
-	printHeap(unstartedProcesses);
+	printf("unstarted: ");
+	printTQueue(unstartedProcesses);
 
 	Queue cpuQ1 = newQueue(), ioQ = newQueue();
 	int p, processUsingCPU1=-1, processUsingIO=-1, t=0;
@@ -108,10 +109,10 @@ int main(int argc, char *argv[])
 
 
 
-	while( processUsingIO!=-1 || processUsingCPU1!=-1 || !isEmptyQueue(cpuQ1) || !isEmptyQueue(ioQ) || !isEmptyHeap(unstartedProcesses) ){
+	while( processUsingIO!=-1 || processUsingCPU1!=-1 || !isEmptyQueue(cpuQ1) || !isEmptyQueue(ioQ) || !isEmptyTQueue(unstartedProcesses) ){
 		// 2 Handle new, incoming process.
-		if( !isEmptyHeap(unstartedProcesses) && (t >= getMin(unstartedProcesses) ) ){
-			removeMin(&unstartedProcesses, &readyAt, &priority, &process);
+		while( !isEmptyTQueue(unstartedProcesses) && (t >= nextReadyAt(unstartedProcesses) ) ){
+			dequeueT(&unstartedProcesses, &readyAt, &priority, &process);
 			printf("removed [%.0lf, %d, %d] from Heap\n", readyAt, priority, process);
 			enqueue(&cpuQ1, process);
 			printf("[%d] (new) cpuQ1: ", t);
