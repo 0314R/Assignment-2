@@ -1,6 +1,6 @@
 #include "queue.h"
 
-int DEFAULT_ARR_LEN = 10;
+int DEFAULT_ARR_LEN = 4;
 
 Queue newQueue(){
 	Queue q;
@@ -95,8 +95,8 @@ void enqueueT(TripleQueue *qp, int ready, int priority, int process){
 	qp->ready[qp->back] = ready;
 	qp->priority[qp->back] = priority;
 	qp->process[qp->back] = process;
-	qp->back = (qp->back+1) % qp->size;
 
+	qp->back = (qp->back+1) % qp->size;
 	if( qp->back == qp->front)
 		doubleTQueueSize(qp);
 }
@@ -141,7 +141,10 @@ double nextReadyAt(TripleQueue q){
 
 void removeFromQueue(Queue *qp, int index){
 	//Shift all elements one to the left from index to back
-	int nextIndex = index+1 % qp->size;
+	printf("trying to remove index %d from this queue: ", index);
+	printQueue(*qp);
+	int nextIndex = (index+1) % qp->size;
+	printf("nextIndex: %d, size=%d, 4%%4==%d\n", nextIndex, qp->size, 4%4);
 	while( nextIndex != qp->back ){
 		qp->arr[index] = qp->arr[nextIndex];
 		index = nextIndex;
@@ -152,12 +155,12 @@ void removeFromQueue(Queue *qp, int index){
 
 void printQueue(Queue q){
 	int i = q.front;
-	putchar('[');
+	printf("[%d] ", i);
 	while(i != q.back){
 		printf("%d ", q.arr[i]);
 		i = (i+1) % q.size;
 	}
-	printf("]\n");
+	printf("[%d] = [%d] = q.back, q.size=%d\n", i, q.back, q.size);
 	// if(isEmptyQueue(q))
 	// 	printf("(empty) ");
 	//

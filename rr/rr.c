@@ -85,8 +85,8 @@ int main(int argc, char *argv[])
 
 	// It is a given that new processes arrive in the correct order, so no need for an ordered data structure, just a queue (with 3 fields).
 	TripleQueue unstartedProcesses = newTQueue();
-	double readyAt;
-	int process, priority, numberOfProcesses = i, quantumRemainder = QUANTUM_LENGTH;
+	double readyAt, quantumRemainder = QUANTUM_LENGTH;
+	int process, priority, numberOfProcesses = i;
 
 	finishTimes = malloc(numberOfProcesses * sizeof(double));
 	matrixRowIndexes = malloc(numberOfProcesses * sizeof(int));
@@ -240,14 +240,17 @@ int main(int argc, char *argv[])
 			i = (i+1) % cpuQs[2].size;
 		}
 		i = cpuQs[3].front;
+		printf("i = cpuQs[3].front = %d============================================\n", cpuQs[3].front);
+		printQueue(cpuQs[3]);
 		while(i != cpuQs[3].back){
+			printf("i = %d, cpuQs[3].back = %d\n", i, cpuQs[3].back);
 			process = cpuQs[3].arr[i];
 			ages[process]++;
 
 			if(ages[process] > 100){
 				ages[process] = 0;
-				// printf("[%d] (lvl+) cpuQ3: ", t);
-				// printQueue(cpuQs[3]);
+				printf("[%d] (lvl+) cpuQ3: ", t);
+				printQueue(cpuQs[3]);
 				removeFromQueue(&cpuQs[3], i);
 				//printf("after removal, i=%d, back=%d\n", i, cpuQs[3].back);/////////////
 				// printf("[%d]        cpuQ3: ", t);
