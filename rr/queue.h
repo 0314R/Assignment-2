@@ -12,6 +12,8 @@ typedef struct Queue{
 	int size;
 } Queue;
 
+typedef Queue* QueueSet;
+
 typedef struct TripleQueue{
 	double *ready;
 	int *priority;
@@ -24,9 +26,11 @@ typedef struct TripleQueue{
 
 Queue newQueue();
 TripleQueue newTQueue();
+QueueSet newQueueSet();
 
 int isEmptyQueue(Queue q);
 int isEmptyTQueue(TripleQueue q);
+int isEmptyQueueSet(QueueSet qs);
 
 void doubleQueueSize(Queue *qp);
 void doubleTQueueSize(TripleQueue *qp);
@@ -36,7 +40,10 @@ void enqueueT(TripleQueue *qp, int ready, int priority, int process);
 
 int dequeue(Queue *qp);
 void dequeueT(TripleQueue *qp, double *ready, int *priority, int *process);
+int dequeueSet(QueueSet set);
+
 double nextReadyAt(TripleQueue q);
 
 void printQueue(Queue q);
 void printTQueue(TripleQueue q);
+void printQueueSet(QueueSet set);

@@ -29,12 +29,25 @@ TripleQueue newTQueue(){
 	return q;
 }
 
+QueueSet newQueueSet(){
+	QueueSet qs;
+	qs = malloc(4 * sizeof(Queue));
+	for( int priority=1 ; priority<=3 ; priority++){
+		qs[priority] = newQueue();
+	}
+	return qs;
+}
+
 int isEmptyQueue(Queue q){
 	return q.back == q.front;
 }
 
 int isEmptyTQueue(TripleQueue q){
 	return q.back == q.front;
+}
+
+int isEmptyQueueSet(QueueSet qs){
+	return isEmptyQueue(qs[1]) && isEmptyQueue(qs[2]) && isEmptyQueue(qs[3]);
 }
 
 void doubleQueueSize(Queue *qp){
@@ -107,6 +120,18 @@ void dequeueT(TripleQueue *qp, double *ready, int *priority, int *process){
 	qp->front = (qp->front+1) % qp->size;
 }
 
+int dequeueSet(QueueSet set){
+	int priority=1;
+	if(isEmptyQueueSet(set))
+		printf("ERROR: TRYING TO DEQUEUE FROM EMPTY SET\n");
+
+	while(isEmptyQueue(set[priority]))
+		priority++;
+
+	printf("dequeued from priority %d\n", priority);
+	return dequeue(&set[priority]);
+}
+
 double nextReadyAt(TripleQueue q){
 	if(isEmptyTQueue(q))
 		printf("Error: trying to read from empty queue\n");
@@ -115,12 +140,22 @@ double nextReadyAt(TripleQueue q){
 }
 
 void printQueue(Queue q){
-	for(int i=0 ; i<q.size ; i++){
-		if(i==q.front) putchar('[');
-		if(i==q.back) putchar(']');
+	int i = q.front;
+	putchar('[');
+	while(i != q.back){
 		printf("%d ", q.arr[i]);
+		i = (i+1) % q.size;
 	}
-	putchar('\n');
+	printf("]\n");
+	// if(isEmptyQueue(q))
+	// 	printf("(empty) ");
+	//
+	// for(int i=0 ; i<q.size ; i++){
+	// 	if(i==q.front) putchar('[');
+	// 	if(i==q.back) putchar(']');
+	// 	printf("%d ", q.arr[i]);
+	// }
+	// putchar('\n');
 }
 
 void printTQueue(TripleQueue q){
@@ -130,4 +165,11 @@ void printTQueue(TripleQueue q){
 		i = (i+1) % q.size;
 	}
 	putchar('\n');
+}
+
+void printQueueSet(QueueSet set){
+	for(int q=1 ; q<=3 ; q++) {
+		printf("cpuQ%d: ", q);
+		printQueue(set[q]);
+	}
 }

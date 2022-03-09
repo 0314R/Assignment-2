@@ -103,20 +103,20 @@ int main(int argc, char *argv[])
 	printf("unstarted: ");
 	printTQueue(unstartedProcesses);
 
-	Queue cpuQ1 = newQueue(), ioQ = newQueue();
-	int p, processUsingCPU1=-1, processUsingIO=-1, t=0;
+	Queue ioQ = newQueue();
+	QueueSet cpuQs = newQueueSet();
+	int p, processUsingCPU=-1, processUsingIO=-1, t=0;
 	double ioBusyUntil, cpuBusyUntil;
 
 
-
-	while( processUsingIO!=-1 || processUsingCPU1!=-1 || !isEmptyQueue(cpuQ1) || !isEmptyQueue(ioQ) || !isEmptyTQueue(unstartedProcesses) ){
+	while( processUsingIO!=-1 || processUsingCPU!=-1 || !isEmptyQueueSet(cpuQs) || !isEmptyQueue(ioQ) || !isEmptyTQueue(unstartedProcesses) ){
 		// 2 Handle new, incoming process.
 		while( !isEmptyTQueue(unstartedProcesses) && (t >= nextReadyAt(unstartedProcesses) ) ){
 			dequeueT(&unstartedProcesses, &readyAt, &priority, &process);
 			printf("removed [%.0lf, %d, %d] from Heap\n", readyAt, priority, process);
-			enqueue(&cpuQ1, process);
-			printf("[%d] (new) cpuQ1: ", t);
-			printQueue(cpuQ1);
+			enqueue(&cpuQs[priority], process);
+			printf("[%d] (new) cpuQ%d: ", t, priority);
+			printQueue(cpuQs[priority]);
 		}
 
 		// 3.1 Handle processes finishing an IO task.
@@ -128,9 +128,10 @@ int main(int argc, char *argv[])
 			if( timesMatrix[p][i] == -1){
 				finishTimes[p] = ioBusyUntil;
 			} else {
-				enqueue(&cpuQ1, p);
-				printf("[%d] (fIO) cpuQ1: ", t);
-				printQueue(cpuQ1);
+				priority = priorities[p];
+				enqueue(&cpuQs[priority], p);
+				printf("[%d] (fIO) cpuQ%d: ", t, priority);
+				printQueue(cpuQs[priority]);
 			}
 			processUsingIO = -1;
 
@@ -151,15 +152,15 @@ int main(int argc, char *argv[])
 		}
 
 		// 4 or 5, depending.
-		if( (processUsingCPU1 != -1) && (t >= cpuBusyUntil) ){
-			p = processUsingCPU1;
+		if( (processUsingCPU != -1) && (t >= cpuBusyUntil) ){
+			p = processUsingCPU;
 			i = matrixRowIndexes[p];
 
 			// 4 Handle processes finishing a CPU task
 			if( timesMatrix[p][i] == 0 ){
 				matrixRowIndexes[p]++;
 				i = matrixRowIndexes[p];
-				processUsingCPU1 = -1;
+				processUsingCPU = -1;
 				// If the process has no more IO need, it is finished. Else it gets in the IO queue.
 				if( timesMatrix[p][i] == -1){
 					finishTimes[p] = cpuBusyUntil;
@@ -167,6 +168,7 @@ int main(int argc, char *argv[])
 					enqueue(&ioQ, p);
 					printf("[%d] (fCPU) ioQ: ", t);
 					printQueue(ioQ);
+					printf("processUsingCPU = %d, isEmptyQueueSet = %d\n", processUsingCPU, isEmptyQueueSet(cpuQs));
 					/* Redo loop iteration without updating t, so that if the IO is available, process p uses it now at time t instead of t+1.
 					   So instead of doing step 6 this iteration, it is done in the next iteration, after step 3.2.*/
 					continue;
@@ -176,21 +178,24 @@ int main(int argc, char *argv[])
 			// 5 Since t >= cpuBusyUntil but the process is not done, we know the process was pre-emptively stopped because the quantum ended.
 
 			else {
-				p = processUsingCPU1;
-				enqueue(&cpuQ1, p);
-				printf("[%d] (fQT) cpuQ1: ", t);
-				printQueue(cpuQ1);
-				processUsingCPU1 = -1;
+				p = processUsingCPU;
+				priority = priorities[p];
+
+				enqueue(&cpuQs[priority], p);
+				printf("[%d] (fQT) cpuQ%d: ", t, priority);
+				printQueue(cpuQs[priority]);
+				processUsingCPU = -1;
 			}
 		}
 
 
 		// 6 The CPU can be used for a new process; a new quantum is started.
-		if( processUsingCPU1 == -1 && !isEmptyQueue(cpuQ1)){
-			p = dequeue(&cpuQ1);
+		if( processUsingCPU == -1 && !isEmptyQueueSet(cpuQs)){
+			p = dequeueSet(cpuQs);
 			i = matrixRowIndexes[p];
+			priority = priorities[p];
+			processUsingCPU = p;
 
-			processUsingCPU1 = p;
 			if(timesMatrix[p][i] <= QUANTUM_LENGTH){
 				quantumRemainder = timesMatrix[p][i];
 				timesMatrix[p][i] = 0;			//When the quantum finishes, we can look at this to say the process is done with CPU.
@@ -201,8 +206,8 @@ int main(int argc, char *argv[])
 			cpuBusyUntil = t + quantumRemainder;
 
 			printf("[%d] (sCPU) timesMatrix[%d][%d] = %.0lf\n", t, p, i, timesMatrix[p][i]);
-			printf("[%d]        cpuBusyUntil=%.0lf cpuQ1: ", t, cpuBusyUntil);
-			printQueue(cpuQ1);
+			printf("[%d]        cpuBusyUntil=%.0lf cpuQ%d:\n", t, cpuBusyUntil, priority);
+			printQueue(cpuQs[priority]);
 		}
 
 		t++;
