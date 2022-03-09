@@ -44,6 +44,8 @@ int dequeueSet(QueueSet set);
 
 double nextReadyAt(TripleQueue q);
 
+void removeFromQueue(Queue *qp, int index);
+
 void printQueue(Queue q);
 void printTQueue(TripleQueue q);
 void printQueueSet(QueueSet set);

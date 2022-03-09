@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
 					enqueue(&ioQ, p);
 					printf("[%d] (fCPU) ioQ: ", t);
 					printQueue(ioQ);
-					printf("processUsingCPU = %d, isEmptyQueueSet = %d\n", processUsingCPU, isEmptyQueueSet(cpuQs));
+					//printf("processUsingCPU = %d, isEmptyQueueSet = %d\n", processUsingCPU, isEmptyQueueSet(cpuQs));
 					/* Redo loop iteration without updating t, so that if the IO is available, process p uses it now at time t instead of t+1.
 					   So instead of doing step 6 this iteration, it is done in the next iteration, after step 3.2.*/
 					continue;
@@ -221,17 +221,54 @@ int main(int argc, char *argv[])
 			printQueue(cpuQs[priority]);
 		}
 
-		// 7 Age waiting processes
+		// 7 Age waiting processes ; 8=1 Promote waiting processes to higher priority.
 		i = cpuQs[2].front;
 		while(i != cpuQs[2].back){
 			process = cpuQs[2].arr[i];
 			ages[process]++;
+			//printf("cpuQ2: ");
+			//printQueue(cpuQs[2]);
+			//printf("cpuQ2 front=%d, i=%d, back=%d : ", cpuQs[2].front, i, cpuQs[2].back);
+
+			if(ages[process] > 100){
+				ages[process] = 0;
+				printf("[%d] (lvl+) cpuQ2: ", t);
+				printQueue(cpuQs[2]);
+				removeFromQueue(&cpuQs[2], i);
+				printf("[%d]        cpuQ2: ", t);
+				printQueue(cpuQs[2]);
+				enqueue(&cpuQs[1], process);
+				printf("[%d]        cpuQ1: ", t);
+				printQueue(cpuQs[1]);
+				//because of the back of the queue moving to the left after removal, need to check guard again
+				if(i == cpuQs[2].back)
+					break;
+			}
 			i = (i+1) % cpuQs[2].size;
 		}
 		i = cpuQs[3].front;
 		while(i != cpuQs[3].back){
 			process = cpuQs[3].arr[i];
 			ages[process]++;
+			//printf("cpuQ3 front=%d, i=%d, back=%d : ", cpuQs[3].front, i, cpuQs[3].back);
+			//printQueue(cpuQs[3]);
+			//printf("ages[%d]++ to %lf\n", process, ages[process]);
+
+			if(ages[process] > 100){
+				ages[process] = 0;
+				printf("[%d] (lvl+) cpuQ3: ", t);
+				printQueue(cpuQs[3]);
+				removeFromQueue(&cpuQs[3], i);
+				//printf("after removal, i=%d, back=%d\n", i, cpuQs[3].back);/////////////
+				printf("[%d]        cpuQ3: ", t);
+				printQueue(cpuQs[3]);
+				enqueue(&cpuQs[2], process);
+				printf("[%d]        cpuQ2: ", t);
+				printQueue(cpuQs[2]);
+				//because of the back of the queue moving to the left after removal, need to check guard again
+				if(i == cpuQs[3].back)
+					break;
+			}
 			i = (i+1) % cpuQs[3].size;
 		}
 		// ages[processUsingIO]++;
@@ -250,10 +287,15 @@ int main(int argc, char *argv[])
 		t++;
 	}
 
+	double sum=0;
 	printf("finishTimes: ");
-	for(p=0 ; p<numberOfProcesses ; p++)
+	for(p=0 ; p<numberOfProcesses ; p++){
 		printf("%.0lf ", finishTimes[p]);
+		sum += finishTimes[p] - startTimes[p];
+	}
 	putchar('\n');
+
+	printf("%.0lf\n", sum / (double)numberOfProcesses);
 
 	return 0;
 }

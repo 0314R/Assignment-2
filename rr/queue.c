@@ -139,6 +139,17 @@ double nextReadyAt(TripleQueue q){
 	return q.ready[q.front];
 }
 
+void removeFromQueue(Queue *qp, int index){
+	//Shift all elements one to the left from index to back
+	int nextIndex = index+1 % qp->size;
+	while( nextIndex != qp->back ){
+		qp->arr[index] = qp->arr[nextIndex];
+		index = nextIndex;
+		nextIndex = index+1 % qp->size;
+	}
+	qp->back = (qp->back == 0 ? qp->size-1 : qp->back-1);
+}
+
 void printQueue(Queue q){
 	int i = q.front;
 	putchar('[');
