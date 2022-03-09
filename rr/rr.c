@@ -29,7 +29,7 @@ void freeMatrix(double **matrix, int rows){
 	free(matrix);
 }
 
-int QUANTUM_LENGTH = 4;
+int QUANTUM_LENGTH = 10;
 
 int main(int argc, char *argv[])
 {
