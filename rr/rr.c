@@ -141,6 +141,8 @@ int main(int argc, char *argv[])
 
 			processUsingIO = p;
 			ioBusyUntil = t + timesMatrix[p][i];
+			//printMatrix(timesMatrix, numberOfProcesses);
+			//printf("matrixRowIndexes[%d] before update: %d\n", p, matrixRowIndexes[p]);
 			matrixRowIndexes[p]++;
 
 			printf("[%d] (sIO) ioBusyUntil: %.0lf ioQ: ", t, ioBusyUntil);
@@ -154,6 +156,9 @@ int main(int argc, char *argv[])
 
 			// 4 Handle processes finishing a CPU task
 			if( timesMatrix[p][i] == 0 ){
+				matrixRowIndexes[p]++;
+				i = matrixRowIndexes[p];
+				processUsingCPU1 = -1;
 				// If the process has no more IO need, it is finished. Else it gets in the IO queue.
 				if( timesMatrix[p][i] == -1){
 					finishTimes[p] = cpuBusyUntil;
@@ -161,10 +166,14 @@ int main(int argc, char *argv[])
 					enqueue(&ioQ, p);
 					printf("[%d] (fCPU) ioQ: ", t);
 					printQueue(ioQ);
+					/* Redo loop iteration without updating t, so that if the IO is available, process p uses it now at time t instead of t+1.
+					   So instead of doing step 6 this iteration, it is done in the next iteration, after step 3.2.*/
+					continue;
 				}
-				processUsingCPU1 = -1;
+
 			}
 			// 5 Since t >= cpuBusyUntil but the process is not done, we know the process was pre-emptively stopped because the quantum ended.
+
 			else {
 				p = processUsingCPU1;
 				enqueue(&cpuQ1, p);
