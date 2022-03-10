@@ -5,46 +5,6 @@
 
 #include "heap.h"
 
-/*
-	Ordered data structure (e.g. priority queue) with tuples [ready_at, process_index]
-	e.g. [[0,0], [15,1]] after initialization of 1.in
-
-	Dynamic array of arrays: timesMatrix. Row i contains the times of process i.
-	e.g.
-	[[100, 25, 100, 20, 50, 20, 100, 10, 200, -1],
-	[30, 15, 30, 10, 40, 10, 50, -1]]
-
-	Array of row indexes to keep track of how much of each matrix row has been read.
-
-	int numberOfProcesses
-	Dynamic array finishTimes[numberOfProcesses] for the final calculation. (could just use a sum variable but easier to check this way if something goes wrong).
-
-	int cpuBusyUntil, ioBusyUntil
-	int readyAt, currentProcessIndex
-
-	After reading inputs, loop these steps:
-	1. Read next ready process from list node [r, i] (=readyAt, processIndex)
-	   Remove that node.
-
-	2. Let ri be the index for matrix row i,
-	   cpuBusyUntil = max(cpuBusyUntil, readyAt)   <this is before adding the current process' CPU time.>
-	   Add the cpu time at [i][ri] to cpuBusyUntil. <this is after adding the current process' CPU time.>
-
-	3. IF there is no new IO but the process ends (-1),
-	   THEN store cpuBusyUntil in index currentProcessIndex of the finish_times array, and start next loop iteration already.
-	   ELSE
-	   ioBusyUntil = max(ioBusyUntil, cpuBusyUntil) <this is before adding the current process' IO time.>
-	   Add the io time at [i][ri+1] to ioBusyUntil <this is after adding the current process' IO time.>
-
-	4. ri +=2;
-
-
-	5. readyAt = ioBusyUntil
-	   Add [readyAt, currentProcessIndex] to ordered list.
-
-	The loop ends when there is nothing in the list anymore, i.e. NULL pointer.
-*/
-
 int max(int x, int y){
 	return (x > y? x : y);
 }
@@ -68,6 +28,7 @@ int main(int argc, char *argv[])
 	double newNumber;
 	char c;
 
+	// Read inputs into timesMatrix
 	do
 	{
 		if (i == processCapability)
@@ -77,11 +38,13 @@ int main(int argc, char *argv[])
 			startTimes = realloc(startTimes, processCapability * sizeof(double));
 		}
 
+		//Each process has an array (row) in the matrix which contains its CPU and IO times from the input, plus the final -1.
 		arraySize = DEFAULT_ARRAY_LENGTH;
 		timesMatrix[i] = malloc(arraySize * sizeof(double));
 		scanf("%lf %*d", &startTimes[i]); // priority is unneeded for fcfs, so we scan but ignore it.
-		j = 0;
 
+		// Read a row of the matrix (i.e. rest of input line).
+		j = 0;
 		do
 		{
 			if (j == arraySize)

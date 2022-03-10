@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
 		timesMatrix[i] = malloc(arraySize * sizeof(double));
 
 		scanf("%lf %d", &startTimes[i], &priorities[i]);
+
+		// Read a row of the matrix (i.e. rest of input line).
 		j = 0;
 		do
 		{
